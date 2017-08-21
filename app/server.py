@@ -5,15 +5,21 @@ from packages import func
 
 class EchoServerClientProtocol(asyncio.Protocol):
     def connection_made(self, transport):
-        peername = transport.get_extra_info('peername')
-        print('Connection from {}'.format(peername))
+        ip = transport.get_extra_info('peername')
+        remote_host = func.get_hostname(ip[0])
+        print(f'Connection from {remote_host} @ {ip}')
         self.transport = transport
 
     def data_received(self, data):
         message = data.decode()
-        print('Data received: {!r}'.format(message))
-        print('Send: {!r}'.format(message))
-        self.transport.write(data)
+        if message not in func.commands:
+            pass
+            # print('Data received: {!r}'.format(message))
+            # print('Send: {!r}'.format(message))
+            # self.transport.write(data)
+        else:
+            # TODO: at this point
+            print(f'{message} sldkfjslkdfjlksjdf')
 
 
 loop = asyncio.get_event_loop()

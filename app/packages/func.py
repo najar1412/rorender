@@ -60,9 +60,14 @@ def kill_process(process_name=None):
     else:
         return f'terminating {process_name} failed.'
 
-def get_hostname():
+def get_hostname(ip=None):
+    if ip != None:
+        name = socket.gethostbyaddr(ip)[0]
+        return name
+
     name = socket.gethostname()
     return name
+
 
 def to_byte(string):
     return bytes(string, 'utf-8')

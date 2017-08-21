@@ -38,6 +38,12 @@ coro = loop.create_connection(
     lambda: EchoClientProtocol(message, loop), '127.0.0.1', 8888
 )
 
-loop.run_until_complete(coro)
-loop.run_forever()
-loop.close()
+
+try:
+    loop.run_until_complete(coro)
+    loop.run_forever()
+    loop.close()
+except:
+    print('\n\n :: Connecting to Rorender...')
+    print(' :: Connection Failed - Is the Rorender server running?\n\n')
+    loop.close()
