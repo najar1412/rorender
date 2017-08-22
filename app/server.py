@@ -3,7 +3,12 @@ import datetime
 
 from packages import func
 
+# TODO: IMP tracking of connections. agents and client.
+
 class EchoServerClientProtocol(asyncio.Protocol):
+    agents = []
+    clients = []
+
     def connection_made(self, transport):
         ip = transport.get_extra_info('peername')
         remote_host = func.get_hostname(ip[0])
@@ -18,6 +23,8 @@ class EchoServerClientProtocol(asyncio.Protocol):
         else:
             print(func.commands[str(message)])
 
+
+print(EchoServerClientProtocol.tester)
 
 loop = asyncio.get_event_loop()
 # Each client connection will create a new protocol instance

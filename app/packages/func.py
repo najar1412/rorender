@@ -75,8 +75,6 @@ def to_byte(string):
 def to_str(string):
     return str(string, 'utf-8')
 
-
-
 def client_menu():
     print(f' :: Successfully connected to Rorender on host {get_hostname()}\n\n')
     print(' :: Menu')
