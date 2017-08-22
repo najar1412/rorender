@@ -71,7 +71,6 @@ def get_hostname(ip=None):
 
 
 def client_menu():
-    print(f' :: Successfully connected to Rorender on host {get_hostname()}\n\n')
     print(' :: Menu')
     print(' :: Enter corresponding Number.')
     for x in commands:
@@ -82,4 +81,13 @@ def client_menu():
 
 def handle_data(data):
     message = json.loads(data.decode())
+
     return message
+
+def client_send(self):
+    message = input(' >> ')
+    if message in commands.keys():
+        self.transport.write(message.encode())
+
+    else:
+        print('Menu item does not exist.')

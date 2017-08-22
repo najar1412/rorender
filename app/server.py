@@ -9,14 +9,19 @@ from packages import func
 class EchoServerClientProtocol(asyncio.Protocol):
     agents = []
     clients = []
+    first_time = True
 
     def connection_made(self, transport):
+        self.transport = transport
         ip = transport.get_extra_info('peername')
         remote_host = func.get_hostname(ip[0])
         print(f'Connection from {remote_host} @ {ip}')
-        self.transport = transport
 
     def data_received(self, data):
+        if self.first_time:
+            self.transport.write(bytes('connected', 'utf-8'))
+            self.first_time = False
+
         message = json.loads(data.decode())
         if isinstance(message, list):
             if message[0] == 'client':
@@ -39,11 +44,6 @@ class EchoServerClientProtocol(asyncio.Protocol):
 
                     self.transport.write(json.dumps(agents_to_send).encode())
                     print(' :: Sending Agents list to someone...')
-
-        # this valids init client/agent connection?
-        self.transport.write(data)
-
-
 
 
 loop = asyncio.get_event_loop()
