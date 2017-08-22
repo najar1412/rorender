@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import json
 
 from packages import func
 
@@ -16,15 +17,34 @@ class EchoServerClientProtocol(asyncio.Protocol):
         self.transport = transport
 
     def data_received(self, data):
-        message = data.decode()
-        if message not in func.commands:
-            # return data to valid connection
-            self.transport.write(data)
+        message = json.loads(data.decode())
+        if isinstance(message, list):
+            if message[0] == 'client':
+                if message in self.clients:
+                    pass
+                else:
+                    self.clients.append(message)
+            elif message[0] == 'agent':
+                if message in self.agents:
+                    pass
+                else:
+                    self.agents.append(message)
         else:
-            print(func.commands[str(message)])
+            message = str(message)
+            if message in func.commands:
+                if message == '1':
+                    agents_to_send = []
+                    for x in self.agents:
+                        agents_to_send.append(x[1])
+
+                    self.transport.write(json.dumps(agents_to_send).encode())
+                    print(' :: Sending Agents list to someone...')
+
+        # this valids init client/agent connection?
+        self.transport.write(data)
 
 
-print(EchoServerClientProtocol.tester)
+
 
 loop = asyncio.get_event_loop()
 # Each client connection will create a new protocol instance

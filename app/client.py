@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 from packages import func
 
@@ -6,7 +7,7 @@ class EchoClientProtocol(asyncio.Protocol):
     def __init__(self, message, loop):
         self.message = message
         if self.message == None:
-            self.message = f'{func.get_hostname()} has connected.'
+            self.message = json.dumps(['client', func.get_hostname()])
         else:
             self.message = message
         self.loop = loop
@@ -19,11 +20,14 @@ class EchoClientProtocol(asyncio.Protocol):
 
     def data_received(self, data):
         func.client_menu()
+        print(data)
         while True:
             message = input(' >> ')
             if message in func.commands.keys():
                 self.transport.write(message.encode())
+
                 print('Data sent: {!r}'.format(message))
+                print(data.decode())
             else:
                 print('Menu item does not exist.')
 

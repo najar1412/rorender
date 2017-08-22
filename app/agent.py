@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 from packages import func
 
@@ -15,7 +16,7 @@ class EchoClientProtocol(asyncio.Protocol):
     def connection_made(self, transport):
         self.transport = transport
         transport.write(self.message.encode())
-        print('\n\n :: Connecting to Rorender...')
+        print('\n\n :: Agent connecting to Rorender...')
 
     def data_received(self, data):
         message = data.decode()
@@ -27,7 +28,7 @@ class EchoClientProtocol(asyncio.Protocol):
         self.loop.stop()
 
 loop = asyncio.get_event_loop()
-message = None
+message = json.dumps(['agent', func.get_hostname()])
 coro = loop.create_connection(
     lambda: EchoClientProtocol(message, loop), '127.0.0.1', 8888
 )
@@ -38,6 +39,6 @@ try:
     loop.run_forever()
     loop.close()
 except:
-    print('\n\n :: Connecting to Rorender...')
+    print('\n\n :: Agent connecting to Rorender...')
     print(' :: Connection Failed - Is the Rorender server running?\n\n')
     loop.close()

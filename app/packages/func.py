@@ -1,8 +1,9 @@
 import sys, os.path, ctypes, ctypes.wintypes
 import socket
+import json
 
 commands = {
-    '1': 'Menu 01',
+    '1': 'Currently running agents',
     '2': 'Menu 02',
     '3': 'Menu 03'
     }
@@ -69,12 +70,6 @@ def get_hostname(ip=None):
     return name
 
 
-def to_byte(string):
-    return bytes(string, 'utf-8')
-
-def to_str(string):
-    return str(string, 'utf-8')
-
 def client_menu():
     print(f' :: Successfully connected to Rorender on host {get_hostname()}\n\n')
     print(' :: Menu')
@@ -84,3 +79,7 @@ def client_menu():
     print('\n')
 
     return True
+
+def handle_data(data):
+    message = json.loads(data.decode())
+    return message
