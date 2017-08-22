@@ -13,13 +13,10 @@ class EchoServerClientProtocol(asyncio.Protocol):
     def data_received(self, data):
         message = data.decode()
         if message not in func.commands:
-            pass
-            # print('Data received: {!r}'.format(message))
-            # print('Send: {!r}'.format(message))
-            # self.transport.write(data)
+            # return data to valid connection
+            self.transport.write(data)
         else:
-            # TODO: at this point
-            print(f'{message} sldkfjslkdfjlksjdf')
+            print(func.commands[str(message)])
 
 
 loop = asyncio.get_event_loop()
