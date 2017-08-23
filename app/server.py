@@ -5,12 +5,14 @@ import json
 from packages import global_func
 
 
+# TODO: can i override transport.get_extra_info to include the host name?
 class EchoServerClientProtocol(asyncio.Protocol):
     first_time = True
     commands = global_func.Commands()
 
     def connection_made(self, transport):
         self.transport = transport
+
         ip = transport.get_extra_info('peername')
         remote_host = global_func.get_hostname(ip[0])
         print(f'Connection from {remote_host} @ {ip}')
@@ -30,10 +32,17 @@ class EchoServerClientProtocol(asyncio.Protocol):
                     self.commands.add_agent(message)
         else:
             message = str(message)
-            if message in global_func.commands:
+            if message in self.commands.menu():
                 if message == '1':
                     self.transport.write(json.dumps(self.commands.send_agent()).encode())
                     print(' :: Sending Agents list to someone...')
+
+    def connection_lost(self, exc):
+        # IMP
+        print('ppppppppppppp')
+        print(self.transport.__dict__)
+        print(exc)
+        print('connection closed?')
 
 
 loop = asyncio.get_event_loop()

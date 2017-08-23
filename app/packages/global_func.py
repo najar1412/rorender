@@ -21,13 +21,11 @@ class Commands():
         return self.agent
 
     def menu(self):
-        menu = {
+        return {
             '1': 'Currently running agents',
             '2': 'Run Vray Spawner on all agents',
             '3': 'Run Backburner Server on all agents'
             }
-
-        return menu
 
     def input(self):
         message = input(' >> ')
@@ -37,16 +35,8 @@ class Commands():
         else:
             return (False, 'Menu item does not exist.')
 
-
     def __repr__(self):
         return '<Commands Obj>'
-
-
-commands = {
-    '1': 'Currently running agents',
-    '2': 'Menu 02',
-    '3': 'Menu 03'
-    }
 
 
 def get_hostname(ip=None):
