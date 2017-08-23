@@ -1,12 +1,5 @@
 import sys, os.path, ctypes, ctypes.wintypes
-import socket
-import json
 
-commands = {
-    '1': 'Currently running agents',
-    '2': 'Menu 02',
-    '3': 'Menu 03'
-    }
 
 def kill_process(process_name=None):
     # globals
@@ -60,34 +53,3 @@ def kill_process(process_name=None):
         return f'{process_name} terminated.'
     else:
         return f'terminating {process_name} failed.'
-
-def get_hostname(ip=None):
-    if ip != None:
-        name = socket.gethostbyaddr(ip)[0]
-        return name
-
-    name = socket.gethostname()
-    return name
-
-
-def client_menu():
-    print(' :: Menu')
-    print(' :: Enter corresponding Number.')
-    for x in commands:
-        print(f' :: {x} - {commands[x]}')
-    print('\n')
-
-    return True
-
-def handle_data(data):
-    message = json.loads(data.decode())
-
-    return message
-
-def client_send(self):
-    message = input(' >> ')
-    if message in commands.keys():
-        self.transport.write(message.encode())
-
-    else:
-        print('Menu item does not exist.')

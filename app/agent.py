@@ -1,13 +1,18 @@
 import asyncio
 import json
 
-from packages import func
+from packages import global_func
+
+
+# TODO: return running processes
+# TODO: kill processes on agent
+# TODO: load processes on agent
 
 class EchoClientProtocol(asyncio.Protocol):
     def __init__(self, message, loop):
         self.message = message
         if self.message == None:
-            self.message = f'Agent on {func.get_hostname()} has connected.'
+            self.message = f'Agent on {global_func.get_hostname()} has connected.'
         else:
             self.message = message
         self.loop = loop
@@ -28,7 +33,7 @@ class EchoClientProtocol(asyncio.Protocol):
         self.loop.stop()
 
 loop = asyncio.get_event_loop()
-message = json.dumps(['agent', func.get_hostname()])
+message = json.dumps(['agent', global_func.get_hostname()])
 coro = loop.create_connection(
     lambda: EchoClientProtocol(message, loop), '127.0.0.1', 8888
 )
