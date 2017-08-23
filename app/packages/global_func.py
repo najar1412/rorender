@@ -1,12 +1,24 @@
 import socket
 
+# helpers
+def get_hostname(ip=None):
+    if ip != None:
+        name = socket.gethostbyaddr(ip)[0]
+        return name
+
+    name = socket.gethostname()
+    return name
+
 
 class Commands():
     def __init__(self, agent=None):
         self.agent = []
 
-    def add_agent(self, agent):
-        self.agent.append(agent)
+    def add_agent(self, transport):
+        ip = transport.get_extra_info('peername')
+        remote_host = get_hostname(ip[0])
+
+        self.agent.append([remote_host, ip, transport])
         return self.agent
 
     def rem_agent(self, agent):
@@ -37,12 +49,3 @@ class Commands():
 
     def __repr__(self):
         return '<Commands Obj>'
-
-
-def get_hostname(ip=None):
-    if ip != None:
-        name = socket.gethostbyaddr(ip)[0]
-        return name
-
-    name = socket.gethostname()
-    return name

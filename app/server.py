@@ -12,10 +12,8 @@ class EchoServerClientProtocol(asyncio.Protocol):
 
     def connection_made(self, transport):
         self.transport = transport
-
-        ip = transport.get_extra_info('peername')
-        remote_host = global_func.get_hostname(ip[0])
-        print(f'Connection from {remote_host} @ {ip}')
+        self.commands.add_agent(self.transport)
+        print(f'Connection from remote_host @ ip')
 
     def data_received(self, data):
         if self.first_time:
@@ -24,18 +22,34 @@ class EchoServerClientProtocol(asyncio.Protocol):
 
         message = json.loads(data.decode())
         if isinstance(message, list):
+            """
             if message[0] == 'agent':
                 if message in self.commands.agent:
                     print('its in there!')
                     pass
                 else:
-                    self.commands.add_agent(message)
+                    print('ooooooo')
+                    print(self.transport)
+                    message.append(self.transport)
+                    self.testy.append(message)
+                    print(self.testy)
+                    print(id(self.testy[0][2]))
+
+                    # self.commands.add_agent(message)
+            """
+            pass
+
         else:
             message = str(message)
             if message in self.commands.menu():
                 if message == '1':
-                    self.transport.write(json.dumps(self.commands.send_agent()).encode())
+                    self.transport.write(str(self.commands.send_agent()).encode())
                     print(' :: Sending Agents list to someone...')
+                elif message == '2':
+                    # self.transport.write(json.dumps(self.commands.send_agent()).encode())
+                    self.commands.send_agent()[0][2].write('bla'.encode())
+                    print('IMP: sending to agents')
+
 
     def connection_lost(self, exc):
         # IMP
