@@ -5,22 +5,30 @@ import json
 from packages import global_func
 
 
-# TODO: can i override transport.get_extra_info to include the host name?
 class RorenderServer(asyncio.Protocol):
     first_time = True
     commands = global_func.Commands()
 
     def connection_made(self, transport):
         self.transport = transport
-        self.commands.add_agent(self.transport)
+        # TODO: figure out a better way to add a key to the object?
+        # possibly overriding it?
+        # init new key to transport object
+        self.transport.__dict__['_extra']['connection_type'] = []
         print(f'Connection from remote_host @ ip')
 
     def data_received(self, data):
         # init connection
         if self.first_time:
+            message = json.loads(data.decode())
+            # add connected agent to agent list
+            if message[0] == 'agent':
+                self.transport.__dict__['_extra']['connection_type'] = message
+                self.commands.add_agent(self.transport)
             self.transport.write(bytes(' :: Successfully connected to Rorender', 'utf-8'))
             self.first_time = False
 
+        # additional connects after the initial
         message = str(json.loads(data.decode()))
         if message in self.commands.menu():
             if message == '1':
@@ -39,7 +47,17 @@ class RorenderServer(asyncio.Protocol):
 
     def connection_lost(self, exc):
         # TODO: figure out how to tell what connection was dropped
-        print('IMP: connection closed')
+
+        try:
+            # try for agent
+            agent_from_transport = self.transport.__dict__['_extra']['connection_type'][1]
+            for agent in self.commands.agent:
+                if agent[0] == agent_from_transport:
+                    self.commands.rem_agent(agent_from_transport)
+            print(f' :: Agent {agent_from_transport} disconnected')
+        except:
+            # except if client
+            pass
 
 
 loop = asyncio.get_event_loop()

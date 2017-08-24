@@ -22,12 +22,15 @@ class Commands():
         return self.agent
 
     def rem_agent(self, agent):
-        if agent in self.agent:
-            self.agent.pop(agent)
-            return self.agent
-        else:
-            print('No such agent')
-            return self.agent
+        print(self.agent)
+        for x in self.agent:
+            if agent == x[0]:
+                self.agent.remove(x)
+                return True
+
+            else:
+                print('removal of agent failed.')
+                return False
 
     def send_agent(self):
         return self.agent
