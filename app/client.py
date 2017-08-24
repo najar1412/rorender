@@ -11,7 +11,7 @@ from packages import client_func
 # TODO: load individual processes on selected agents
 # TODO: kill individial processes on selected agents
 
-class EchoClientProtocol(asyncio.Protocol):
+class RorenderClient(asyncio.Protocol):
     first_time = True
 
     def __init__(self, message, loop):
@@ -25,7 +25,7 @@ class EchoClientProtocol(asyncio.Protocol):
         print(f'\n\n :: Connecting to Rorender on host {global_func.get_hostname()}...')
 
     def data_received(self, data):
-        print(f' :: {data.decode()}\n\n')
+        print(f'{data.decode()}\n\n')
         # init menu on first time connection
         if self.first_time:
             print(' :: Rorender Commands')
@@ -34,6 +34,7 @@ class EchoClientProtocol(asyncio.Protocol):
             print('\n')
             self.first_time = False
 
+        # user input
         client_input = global_func.Commands().input()
         if client_input[0]:
             self.transport.write(client_input[1].encode())
@@ -48,9 +49,8 @@ class EchoClientProtocol(asyncio.Protocol):
 loop = asyncio.get_event_loop()
 message = json.dumps(['client', global_func.get_hostname()])
 coro = loop.create_connection(
-    lambda: EchoClientProtocol(message, loop), '127.0.0.1', 8888
+    lambda: RorenderClient(message, loop), '127.0.0.1', 8888
 )
-
 
 try:
     loop.run_until_complete(coro)

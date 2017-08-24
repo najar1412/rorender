@@ -8,7 +8,7 @@ from packages import global_func
 # TODO: kill processes on agent
 # TODO: load processes on agent
 
-class EchoClientProtocol(asyncio.Protocol):
+class RorenderAgent(asyncio.Protocol):
     def __init__(self, message, loop):
         self.message = message
         if self.message == None:
@@ -35,7 +35,7 @@ class EchoClientProtocol(asyncio.Protocol):
 loop = asyncio.get_event_loop()
 message = json.dumps(['agent', global_func.get_hostname()])
 coro = loop.create_connection(
-    lambda: EchoClientProtocol(message, loop), '127.0.0.1', 8888
+    lambda: RorenderAgent(message, loop), '127.0.0.1', 8888
 )
 
 
