@@ -10,6 +10,9 @@ from packages import agent_func
 # TODO: load processes on agent
 
 class RorenderAgent(asyncio.Protocol):
+    first_time = True
+
+
     def __init__(self, message, loop):
         self.message = message
         if self.message == None:
@@ -25,12 +28,17 @@ class RorenderAgent(asyncio.Protocol):
         print('\n\n :: Agent connecting to Rorender...')
 
     def data_received(self, data):
-        message = data.decode()
-        print(f' :: Receiving message from server. {message}.')
-        if message == '2':
-            agent_func.load_vrayspawner()
-            agent_func.load_backburner_server()
-            self.transport.write('Message received.'.encode())
+        if self.first_time:
+            message = data.decode()
+            print(message)
+            first_time = False
+        else:
+            print(f' :: Receiving message from server. {message}.')
+            if message == '2':
+                print(message)
+                # agent_func.load_vrayspawner()
+                # agent_func.load_backburner_server()
+                self.transport.write('Message received.'.encode())
 
     def connection_lost(self, exc):
         print('The server closed the connection')
