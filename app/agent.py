@@ -2,6 +2,7 @@ import asyncio
 import json
 
 from packages import global_func
+from packages import agent_func
 
 
 # TODO: return running processes
@@ -25,7 +26,11 @@ class RorenderAgent(asyncio.Protocol):
 
     def data_received(self, data):
         message = data.decode()
-        print(message)
+        print(f' :: Receiving message from server. {message}.')
+        if message == '2':
+            agent_func.load_vrayspawner()
+            agent_func.load_backburner_server()
+            self.transport.write('Message received.'.encode())
 
     def connection_lost(self, exc):
         print('The server closed the connection')
@@ -37,7 +42,6 @@ message = json.dumps(['agent', global_func.get_hostname()])
 coro = loop.create_connection(
     lambda: RorenderAgent(message, loop), '127.0.0.1', 8888
 )
-
 
 try:
     loop.run_until_complete(coro)
