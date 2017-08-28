@@ -44,6 +44,15 @@ class RorenderServer(asyncio.Protocol):
                 except:
                     self.transport.write(' :: Request Failed'.encode())
 
+            elif message == '3':
+                print('IMP: sending agents')
+                try:
+                    self.commands.send_agent()[0][2].write(message.encode())
+                    self.transport.write(' :: Request send to Agents'.encode())
+                    print('IMP: Sending to agents')
+                except:
+                    self.transport.write(' :: Request Failed'.encode())
+
 
     def connection_lost(self, exc):
         # TODO: figure out how to tell what connection was dropped

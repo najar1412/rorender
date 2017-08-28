@@ -31,13 +31,18 @@ class RorenderAgent(asyncio.Protocol):
         if self.first_time:
             message = data.decode()
             print(message)
-            first_time = False
+            self.first_time = False
         else:
+            message = data.decode()
             print(f' :: Receiving message from server. {message}.')
+
             if message == '2':
                 print(message)
-                # agent_func.load_vrayspawner()
-                # agent_func.load_backburner_server()
+                agent_func.load_vrayspawner()
+                self.transport.write('Message received.'.encode())
+            elif message == '3':
+                print(message)
+                agent_func.load_backburner_server()
                 self.transport.write('Message received.'.encode())
 
     def connection_lost(self, exc):

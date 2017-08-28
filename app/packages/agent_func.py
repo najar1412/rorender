@@ -56,20 +56,20 @@ def kill_process(process_name=None):
         return f'terminating {process_name} failed.'
 
 
-def load_backburner_server(version=None):
+def load_vrayspawner(version=None):
     if version == None:
-        os.chdir('C:\\Program Files (x86)\Autodesk\\Backburner')
-        os.system('"C:\\Program Files (x86)\Autodesk\\Backburner\\server.exe"')
+        os.chdir('C:\\Program Files\\Autodesk\\3ds Max 2017')
+        os.system('"C:\\Program Files\\Autodesk\\3ds Max 2017\\vrayspawner2017.exe"')
         return True
 
     else:
         return False
 
 
-def load_vrayspawner(version=None):
+def load_backburner_server(version=None):
     if version == None:
-        os.chdir('C:\\Program Files\\Autodesk\\3ds Max 2017')
-        os.system('"C:\\Program Files\\Autodesk\\3ds Max 2017\\vrayspawner2017.exe"')
+        os.chdir('C:\\Program Files (x86)\Autodesk\\Backburner')
+        os.system('"C:\\Program Files (x86)\Autodesk\\Backburner\\server.exe"')
         return True
 
     else:
