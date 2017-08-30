@@ -29,16 +29,22 @@ class RorenderServer(asyncio.Protocol):
             self.first_time = False
 
         # additional connects after the initial
-        message = str(json.loads(data.decode()))
+        # TODO: This json.loads() seems to be causing issues.
+        # i needed it to receive json encodings, but sometimes only strs are sent
+        # for option selection.
+        try:
+            message = str(json.loads(data.decode()))
+        except:
+            message = str(data.decode())
         if message in self.commands.menu():
             if message == '1':
-                self.transport.write(str(self.commands.send_agent()).encode())
+                self.transport.write(str(self.commands.get_agent()).encode())
                 print(' :: Sending Agents list to someone...')
 
             elif message == '2':
                 print('IMP: sending to agents')
                 try:
-                    self.commands.send_agent()[0][2].write(message.encode())
+                    self.commands.send_to_agent()[0][2].write(message.encode())
                     self.transport.write(' :: Request sent to Agents'.encode())
                     print('IMP: sending to agents')
                 except:
@@ -47,7 +53,7 @@ class RorenderServer(asyncio.Protocol):
             elif message == '3':
                 print('IMP: sending agents')
                 try:
-                    self.commands.send_agent()[0][2].write(message.encode())
+                    self.commands.send_to_agent()[0][2].write(message.encode())
                     self.transport.write(' :: Request send to Agents'.encode())
                     print('IMP: Sending to agents')
                 except:

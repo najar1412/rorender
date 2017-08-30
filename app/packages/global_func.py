@@ -14,6 +14,15 @@ class Commands():
     def __init__(self, agent=None):
         self.agent = []
 
+    def get_agent(self):
+        # TODO: this should send all agents and running
+        # processes to requesting client
+        print('pppppppp')
+        for x in self.agent:
+            print(x[0])
+
+        return self.agent
+
     def add_agent(self, transport):
         ip = transport.get_extra_info('peername')
         remote_host = get_hostname(ip[0])
@@ -32,7 +41,7 @@ class Commands():
                 print('removal of agent failed.')
                 return False
 
-    def send_agent(self):
+    def send_to_agent(self):
         return self.agent
 
     def menu(self):

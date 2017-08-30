@@ -1,5 +1,6 @@
 import os
 import sys, os.path, ctypes, ctypes.wintypes
+import subprocess
 
 
 def kill_process(process_name=None):
@@ -58,8 +59,7 @@ def kill_process(process_name=None):
 
 def load_vrayspawner(version=None):
     if version == None:
-        os.chdir('C:\\Program Files\\Autodesk\\3ds Max 2017')
-        os.system('"C:\\Program Files\\Autodesk\\3ds Max 2017\\vrayspawner2017.exe"')
+        subprocess.Popen('"C:\\Program Files\\Autodesk\\3ds Max 2017\\vrayspawner2017.exe"')
         return True
 
     else:
@@ -68,8 +68,7 @@ def load_vrayspawner(version=None):
 
 def load_backburner_server(version=None):
     if version == None:
-        os.chdir('C:\\Program Files (x86)\Autodesk\\Backburner')
-        os.system('"C:\\Program Files (x86)\Autodesk\\Backburner\\server.exe"')
+        subprocess.Popen('"C:\\Program Files (x86)\Autodesk\\Backburner\\server.exe"')
         return True
 
     else:
