@@ -48,7 +48,8 @@ class Commands():
         return {
             '1': 'Currently running agents',
             '2': 'Run Vray Spawner on all agents',
-            '3': 'Run Backburner Server on all agents'
+            '3': 'Run Backburner Server on all agents',
+            '4': 'Check processes'
             }
 
     def input(self):

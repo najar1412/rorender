@@ -3,6 +3,7 @@ import datetime
 import json
 
 from packages import global_func
+from packages import agent_func
 
 
 class RorenderServer(asyncio.Protocol):
@@ -58,6 +59,11 @@ class RorenderServer(asyncio.Protocol):
                     print('IMP: Sending to agents')
                 except:
                     self.transport.write(' :: Request Failed'.encode())
+
+            elif message == '4':
+                print('checking processes...')
+                agent_func.getTasks('chrome.exe')
+
 
 
     def connection_lost(self, exc):

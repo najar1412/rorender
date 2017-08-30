@@ -2,6 +2,28 @@ import os
 import sys, os.path, ctypes, ctypes.wintypes
 import subprocess
 
+"""
+def getTasks(name):
+    r = os.popen('tasklist /v').read().strip().split('\n')
+    print ('# of tasks is %s' % (len(r)))
+    for i in range(len(r)):
+        s = r[i]
+        if name in r[i]:
+            print ('%s in r[i]' %(name))
+            return r[i]
+    return []
+"""
+
+def getTasks(name):
+    # TODO: This is well slow, try psutil?
+    r = os.popen('tasklist /v').read().strip().split('\n')
+    for i in range(len(r)):
+        s = r[i]
+        if name in r[i]:
+            print(r[i])
+            return r[i]
+    return []
+
 
 def kill_process(process_name=None):
     # globals
