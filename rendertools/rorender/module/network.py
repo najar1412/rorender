@@ -17,9 +17,9 @@ class LocalNetworkScanner():
         else:
             self.local_ip_root = local_ip_root
 
-        self.corona_ports = [19666, 19667, 19668]
-        self.vray_ports = [20204]
-        self.open_windows_ports = [135]
+        self.corona_ports = [19667, 19666, 19668]
+        self.vray_ports = [20204, 30304]
+        self.open_windows_ports = [135, 3389]
 
         for port in self.corona_ports:
             self.open_windows_ports.insert(0, port)
@@ -62,11 +62,16 @@ class LocalNetworkScanner():
         result = {}
 
         for ip_ext in range(1, 256):
-            for port in self.open_windows_ports:
-                ip = f'{self.local_ip_root}{str(ip_ext)}'
+            ip = f'{self.local_ip_root}{str(ip_ext)}'
+            found_ports = []
 
+            for port in self.open_windows_ports:
                 if self.ip_accessable(ip, port):
-                    result[socket.getfqdn(ip)] = [ip, port]
+                    print(port)
+                    found_ports.append(str(port))
+
+            if len(found_ports) > 0:
+                result[socket.getfqdn(ip)] = (ip, found_ports)
 
         return result
 
