@@ -9,48 +9,62 @@
     <a href="pop/" class="btn btn-warning btn-sm btn-block" role="button">Find New Machines on Network (slow...)</a>
 </div>
 
-{% for machine in machines %}
-{% if machine.running %}
-<div class="alert alert-success" role="alert">
-    <div style="display:flex;flex-direction: row;justify-content: space-between">
-    <div style="display:flex;flex-direction: column;">
-        <div>{{machine.name}} <span style="color:gray;font-style: italic;">{{machine.ip}}</span></div>
-        <div style="font-size:12px;">
-            <a href="">Remote Connect</a>
-            <a href="">Remote Connect</a>
+<p style="height:30px;"></p>
 
-        </div>
-    </div>
-    <div>
-            {% if machine.vray_running %}
-            <img style="height:40px;width:40px" src="{% static "rorender/vraylogo_color.png" %}"/>
-            {% else %}
-            <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/vraylogo_gray.png" %}"/>
-            {% endif %}
-            {% if machine.corona_running %}
-            <img style="height:40px;width:40px" src="{% static "rorender/coronalogo_color.png" %}"/>
-            {% else %}
-            <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/coronalogo_gray.png" %}"/>
-            {% endif %}
-        </div>
-    </div>
-</div>
-{% else %}
-<div class="alert alert-secondary" role="alert">
-        <div style="display:flex;flex-direction: row;justify-content: space-between">
-            <div style="display:flex;flex-direction: column;">
-                <div>
-            {{machine.name}}
-        </div>
-        </div>
-        <div>
-                <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/vraylogo_gray.png" %}"/>
-                <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/coronalogo_gray.png" %}"/>
+<div style="display:flex; flex-direction: row; justify-content: space-between;">
+
+        <div style="display:flex; flex-direction: column;">
+                <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Workstations</h1>
+        
+                {% for machine in machines %}
+                {% if machine.is_workstation %}
+        
+                {% include "rorender/com_machine_card.html" %}
+        
+                {% endif %}
+                {% endfor %}
+        
             </div>
-        </div>
-    </div>
-    {% endif %}
 
-{% endfor %}
+    <div style="display:flex; flex-direction: column;">
+        <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Available</h1>
+
+        {% for machine in machines %}
+        {% if machine.running and not machine.rendering %}
+
+        {% include "rorender/com_machine_card.html" %}
+
+        {% endif %}
+        {% endfor %}
+
+    </div>
+
+    <div style="display:flex; flex-direction: column;">
+            <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Rendering</h1>
+    
+            {% for machine in machines %}
+            {% if machine.rendering %}
+    
+            {% include "rorender/com_machine_card.html" %}
+    
+            {% endif %}
+            {% endfor %}
+    
+        </div>
+
+    <div style="display:flex; flex-direction: column;">
+        <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Not Found</h1>
+
+        {% for machine in machines %}
+        {% if not machine.running %}
+
+        {% include "rorender/com_machine_card_off.html" %}
+
+        {% endif %}
+        {% endfor %}
+
+    </div>
+
+</div>
 
 {% endblock %}

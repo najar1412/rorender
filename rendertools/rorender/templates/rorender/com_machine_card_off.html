@@ -1,0 +1,16 @@
+{% load static %}
+
+<div class="alert alert-dark" style="width:320px;">
+
+    <div style="display:flex;flex-direction: row;justify-content: space-between">
+    <div style="display:flex;flex-direction: column;">
+        <div><span style="font-weight:bold;">{{machine.name}}</span> <span style="color:gray;font-style: italic;font-size:11px">{{machine.ip}}</span></div>
+
+    </div>
+    <div>
+            <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/vraylogo_gray.png" %}"/>
+            <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/coronalogo_gray.png" %}"/>
+        </div>
+    </div>
+    
+</div>
