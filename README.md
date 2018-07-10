@@ -1,6 +1,6 @@
 IN DEV
 
-rendertools
+Rendertools
 --
 
 remote machine process wrangler
@@ -10,3 +10,18 @@ remote machine process wrangler
 * frontend listing current render jobs, whom sent it and the machines being used.
 * frontend listing of what machines have DR spawners currently running.
 
+Installation
+--
+
+```
+..> cd rendertools
+..\rendertools> pipenv install
+..\rendertools> pipenv shell
+
+..\rendertools> cd rendertools
+..\rendertools\rendertools> python manage.py runserver
+```
+
+```
+http://localhost:8000/rorender
+```
