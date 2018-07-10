@@ -1,9 +1,9 @@
 IN DEV
 
-rorender
+rendertools
 --
 
-remote machine wrangler
+remote machine process wrangler
 
 * a simple tool that identifies all machines on your network capable of rendering.
 * fifo system user system.
