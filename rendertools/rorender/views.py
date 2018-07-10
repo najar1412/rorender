@@ -39,12 +39,11 @@ def pop(request):
     for k, v in local_machines.items():
         if Machine.objects.filter(ip=v[0]).exists():
             machine = process_new_ports(ports=v[1], ip=v[0])
-
             machine.save()
 
         else:
-            # TODO: enter running processes on object create
             new_machine = Machine(name=k, ip=v[0], port=' '.join(v[1]))
+            process_new_ports(ports=v[1], machine=new_machine)
             new_machine.save()
 
 

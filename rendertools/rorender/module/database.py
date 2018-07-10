@@ -6,7 +6,7 @@ from ..models import Machine
 
 
 def process_new_ports(ports, ip=None, machine=None):
-    """Loops over a list of ports and updates database accordingly.
+    """Loops over a list of ports and updates django object accordingly.
     ports: list: str repr of ports.
     ip: str: ip address.
     machine: django model: #.
@@ -14,14 +14,19 @@ def process_new_ports(ports, ip=None, machine=None):
     if ip != None:
         machine = Machine.objects.filter(ip=ip).first()
 
+    elif ip == None and machine == None:
+        raise AttributeError(
+            """`process_new_ports` requires either `ip` or 
+            `machine` to not be `None`"""
+        )
+
     if '20204' in ports:
         machine.vray_running = True
 
     else:
         machine.vray_running = False
 
-    if '19667' in ports or '19666' in ports:
-        print(f'corona on {machine.name}')
+    if '19667' in ports or '19666' in ports or '19668' in ports:
         machine.corona_running = True
 
     else:

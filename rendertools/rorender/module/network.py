@@ -49,6 +49,19 @@ class LocalNetworkScanner():
         self.TEST = TEST
 
 
+    def _found_ports(self, ip):
+        """loops through a list of ports on an ip address
+        ip: str: ip address
+        return: list"""
+        result = []
+
+        for port in self.open_windows_ports:
+            if self.ip_accessable(ip, port):
+                result.append(str(port))
+
+        return result
+
+
     def ip_accessable(self, ip, port):
         """checks if a machine is accessable via it's ip address
         ip: str: ip of machine to check
@@ -63,19 +76,6 @@ class LocalNetworkScanner():
 
             if not sock.connect_ex((ip, port)):
                 return True
-
-
-    def _found_ports(self, ip):
-        """loops through a list of ports on an ip address
-        ip: str: ip address
-        return: list"""
-        result = []
-
-        for port in self.open_windows_ports:
-            if self.ip_accessable(ip, port):
-                result.append(str(port))
-
-        return result
 
 
     def refresh(self, ips):

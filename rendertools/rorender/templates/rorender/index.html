@@ -6,7 +6,7 @@
 
 <div style="display:flex;flex-direction: column;padding-top: 10px; padding-bottom: 10px;">
     <a href="refresh/" class="btn btn-primary btn-lg btn-block" role="button">Refresh Machines</a>
-    <a href="pop/" class="btn btn-warning btn-sm btn-block" role="button">Re-scan Network (slow...)</a>
+    <a href="pop/" class="btn btn-warning btn-sm btn-block" role="button">Find New Machines on Network (slow...)</a>
 </div>
 
 {% for machine in machines %}
@@ -15,7 +15,9 @@
     <div style="display:flex;flex-direction: row;justify-content: space-between">
     <div style="display:flex;flex-direction: column;">
         <div>{{machine.name}} <span style="color:gray;font-style: italic;">{{machine.ip}}</span></div>
-        <div style="font-size:12px;"><a href="">Remote Connect</a>
+        <div style="font-size:12px;">
+            <a href="">Remote Connect</a>
+            <a href="">Remote Connect</a>
 
         </div>
     </div>
