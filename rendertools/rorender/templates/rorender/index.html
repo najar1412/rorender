@@ -4,6 +4,11 @@
 
 {% block content %}
 
+<div style="display:flex;flex-direction: column;padding-top: 10px; padding-bottom: 10px;">
+    <a href="refresh/" class="btn btn-primary btn-lg btn-block" role="button">Refresh Machines</a>
+    <a href="pop/" class="btn btn-warning btn-sm btn-block" role="button">Re-scan Network (slow...)</a>
+</div>
+
 {% for machine in machines %}
 {% if machine.running %}
 <div class="alert alert-success" role="alert">
@@ -18,12 +23,12 @@
             {% if machine.vray_running %}
             <img style="height:40px;width:40px" src="{% static "rorender/vraylogo_color.png" %}"/>
             {% else %}
-            <img style="height:40px;width:40px" src="{% static "rorender/vraylogo_gray.png" %}"/>
+            <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/vraylogo_gray.png" %}"/>
             {% endif %}
             {% if machine.corona_running %}
             <img style="height:40px;width:40px" src="{% static "rorender/coronalogo_color.png" %}"/>
             {% else %}
-            <img style="height:40px;width:40px" src="{% static "rorender/coronalogo_gray.png" %}"/>
+            <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/coronalogo_gray.png" %}"/>
             {% endif %}
         </div>
     </div>
@@ -37,8 +42,8 @@
         </div>
         </div>
         <div>
-                <img style="height:40px;width:40px" src="{% static "rorender/vraylogo_gray.png" %}"/>
-                <img style="height:40px;width:40px" src="{% static "rorender/coronalogo_gray.png" %}"/>
+                <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/vraylogo_gray.png" %}"/>
+                <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/coronalogo_gray.png" %}"/>
             </div>
         </div>
     </div>

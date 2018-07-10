@@ -5,9 +5,28 @@ Contains source code for scanning local windows(?) networks.
 import socket
 
 
+TEST_DATA = {
+    '192.168.1.8': ('192.168.1.8', ['3389']), 
+    'WS-CYRUS': ('192.168.1.10', ['135', '3389']), 
+    'WS-BREWSTER': ('192.168.1.14', ['20204', '135', '3389']), 
+    'WS-DEREK': ('192.168.1.16', ['135', '3389']), 
+    'WS-CHEMI': ('192.168.1.17', ['135', '3389', '19667']), 
+    'WS-CHAZ': ('192.168.1.18', ['30304', '135', '3389']), 
+    'WS-ERNIE': ('192.168.1.19', ['20204', '135', '3389']), 
+    'WS-CESAREA': ('192.168.1.20', ['20204', '135', '3389']), 
+    'WS-BORIS': ('192.168.1.21', ['135']), 
+    '192.168.1.60': ('192.168.1.60', ['30304', '3389']), 
+    'WS-FIONA': ('192.168.1.80', ['30304', '135']), 
+    'WS-DERMIT': ('192.168.1.81', ['30304', '135', '3389']), 
+    'ws-Flubber': ('192.168.1.82', ['135', '3389', '19667']), 
+    'WS-FRIDA': ('192.168.1.83', ['135', '3389']), 
+    'WS-DONOVAN': ('192.168.1.84', ['20204', '19666', '3389']), 
+    'WS-DORIS': ('192.168.1.86', ['135', '3389', '20204'])
+    }
+
 class LocalNetworkScanner():
     """manages the scanning of local networks"""
-    def __init__(self, local_ip_root=None):
+    def __init__(self, local_ip_root=None, TEST=False):
         """AUG:
         local_ip_root: str: root ip address of a network to scan, ex. 'xxx.xxx.xxx.'
         """
@@ -23,36 +42,59 @@ class LocalNetworkScanner():
 
         for port in self.corona_ports:
             self.open_windows_ports.insert(0, port)
+
         for port in self.vray_ports:
             self.open_windows_ports.insert(0, port)
 
-
-    def hostname_from_ip(self, ip):
-        """uses ip address to resolve a windows machines hostname"""
-        # TODO: returns `ip` whether it exits or not.
-        return socket.getfqdn(ip)
-
-
-    def ip_from_hostname(self, hostname):
-        """users windows hostname to get machines ip address"""
-        try:
-            return socket.gethostbyname(hostname)
-
-        except socket.error:
-            return (False, f'ERR: {hostname} not found')
+        self.TEST = TEST
 
 
     def ip_accessable(self, ip, port):
         """checks if a machine is accessable via it's ip address
         ip: str: ip of machine to check
         return type: bool"""
-        # TODO: Currently only returns windows machines. This is okay, but it
-        # it would be nice to return any NAS devices attached to the network.
+        # TODO: Currently only finds machines that are activing listening.
+        # If a machine is rendering (recv) information on the port `is_accessable`
+        # cannot find it. This is a problem.
+        # look into using socket.bind() and process based on errors?
+        # https://stackoverflow.com/questions/2470971/fast-way-to-test-if-a-port-is-in-use-using-python
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.settimeout(0.01)
 
             if not sock.connect_ex((ip, port)):
                 return True
+
+
+    def _found_ports(self, ip):
+        """loops through a list of ports on an ip address
+        ip: str: ip address
+        return: list"""
+        result = []
+
+        for port in self.open_windows_ports:
+            if self.ip_accessable(ip, port):
+                result.append(str(port))
+
+        return result
+
+
+    def refresh(self, ips):
+        """uses a list of ips to run port checks on.
+        ips: list: str repr of ips.
+        return type: dict
+        return: hostname and ip address"""
+        result = {}
+
+        if self.TEST == True:
+            return TEST_DATA
+
+        for ip in ips:
+            found_ports = self._found_ports(ip)
+
+            if len(found_ports) > 0:
+                result[socket.getfqdn(ip)] = (ip, found_ports)
+
+        return result
 
 
     def scan(self):
@@ -61,14 +103,12 @@ class LocalNetworkScanner():
         return: hostname and ip address"""
         result = {}
 
+        if self.TEST == True:
+            return TEST_DATA
+
         for ip_ext in range(1, 256):
             ip = f'{self.local_ip_root}{str(ip_ext)}'
-            found_ports = []
-
-            for port in self.open_windows_ports:
-                if self.ip_accessable(ip, port):
-                    print(port)
-                    found_ports.append(str(port))
+            found_ports = self._found_ports(ip)
 
             if len(found_ports) > 0:
                 result[socket.getfqdn(ip)] = (ip, found_ports)

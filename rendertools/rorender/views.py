@@ -2,75 +2,50 @@ from django.shortcuts import render, redirect
 
 from .models import Machine
 from .module.network import LocalNetworkScanner
-
-
-def machine_exist(machine):
-    if Machine.objects.filter(name=machine).exists():
-        return True
-    else:
-        return False
+from .module.database import process_new_ports
 
 
 def index(request):
+    """Landing page"""
     machines = Machine.objects.all()
     context = {'machines': machines}
+
 
     return render(request, 'rorender/index.html', context)
 
 
-def pop(request):
-    # TODO: Move below logic to module.
-    local_machines = LocalNetworkScanner().scan()
-    print(local_machines)
+def refresh(request):
+    """Endpoint that'll use the database information to update running
+    process"""
+
+    ips = [x.ip for x in Machine.objects.all()]
+    local_machines = LocalNetworkScanner().refresh(ips)
 
     for k, v in local_machines.items():
-        existing_machine = Machine.objects.filter(ip=v[0]).first()
-        if existing_machine:
-            if '20204' in v[1]:
-                existing_machine.vray_running = True
+        machine = process_new_ports(
+            ports=v[1], machine=Machine.objects.filter(ip=v[0]).first()
+        )
+        machine.save()
 
-            else:
-                existing_machine.vray_running = False
 
-            if '19666' in v[1]:
-                existing_machine.corona_running = True
+    return redirect('index')
 
-            else:
-                existing_machine.corona_running = False
 
-            existing_machine.save()
+def pop(request):
+    """Endpoint that scans the local network for machines with selected
+    ports open"""
+    local_machines = LocalNetworkScanner().scan()
 
-        else:
-            new_machine = Machine(name=k, ip=v[0], port=' '.join(v[1]))
-            if '20204' in v[1]:
-                new_machine.vray_running = True
+    for k, v in local_machines.items():
+        if Machine.objects.filter(ip=v[0]).exists():
+            machine = process_new_ports(ports=v[1], ip=v[0])
 
-            if '19666' in v[1]:
-                new_machine.corona_running = True
-
-            new_machine.save()
-            
-        '''
-        machine = Machine.objects.filter(ip=v[0]).first()
-        if machine:
-            if '19667' in v[1]:
-                print(f'Corona is running on {machine.name}')
+            machine.save()
 
         else:
+            # TODO: enter running processes on object create
             new_machine = Machine(name=k, ip=v[0], port=' '.join(v[1]))
             new_machine.save()
-        '''
 
-
-    '''
-    print(local_machines)
-
-    for key, value in local_machines.items():
-        if machine_exist(key):
-            pass
-        else:
-            new_machine = Machine(name=key, ip=value[0], port=value[1])
-            new_machine.save()
-    '''
 
     return redirect('index')
