@@ -34,3 +34,25 @@ def process_new_ports(ports, ip=None, machine=None):
 
 
     return machine
+
+
+def is_workstation(pk):
+    machine = Machine.objects.filter(pk=pk).first()
+
+    if machine.is_workstation == True:
+        machine.is_workstation = False
+    else:
+        machine.is_workstation = True
+
+    return machine
+
+
+def is_manager(pk):
+    machine = Machine.objects.filter(pk=pk).first()
+
+    if machine.is_manager == True:
+        machine.is_manager = False
+    else:
+        machine.is_manager = True
+
+    return machine

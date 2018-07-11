@@ -1,13 +1,39 @@
 {% load static %}
 
+
+
 <div class="alert alert-success" style="width:320px;">
 
     <div style="display:flex;flex-direction: row;justify-content: space-between">
     <div style="display:flex;flex-direction: column;">
-        <div><a href=""><span style="font-weight:bold;">{{machine.name}}</span></a> <span style="color:gray;font-style: italic;font-size:11px;">{{machine.ip}}</span></div>
+        <div>
+            <a href="/rorender/remote_connect/?ip={{machine.ip}}"><span style="font-weight:bold;">{{machine.name}}</span></a> <span style="color:gray;font-style: italic;font-size:11px;">{{machine.ip}}</span>
+        </div>
+
+        {% if manage %}
+
+        <div style="font-size:12px;">
+            {% if not machine.is_workstation %}
+            <a href="/rorender/make_workstation/?pk={{machine.pk}}">Make Workstation</a>, 
+            {% else %}
+            <a href="/rorender/make_workstation/?pk={{machine.pk}}">Remove Workstation</a>, 
+            {% endif %}
+            {% if not machine.is_manager %}
+            <a href="/rorender/make_manager/?pk={{machine.pk}}">Make Manager</a>, 
+            {% else %}
+            <a href="/rorender/make_manager/?pk={{machine.pk}}">Remove Manager</a>, 
+            {% endif %}
+            <strike><a href="">Edit Name</a></strike>,
+            <strike><a href="">Assign To...</a></strike>
+        </div>
+
+        {% endif %}
 
     </div>
-    <div>
+
+    {% if not machine.is_manager %}
+
+    <div style="display:flex;flex-direction: row;">
             {% if machine.vray_running %}
             <img style="height:40px;width:40px" src="{% static "rorender/vraylogo_color.png" %}"/>
             {% else %}
@@ -19,6 +45,9 @@
             <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/coronalogo_gray.png" %}"/>
             {% endif %}
         </div>
+
+        {% endif %}
+
     </div>
 
 </div>

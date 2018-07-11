@@ -4,12 +4,18 @@
 
 {% block content %}
 
-<div style="display:flex;flex-direction: column;padding-top: 10px; padding-bottom: 10px;">
-    <a href="refresh/" class="btn btn-primary btn-lg btn-block" role="button">Refresh Machines</a>
-    <a href="pop/" class="btn btn-warning btn-sm btn-block" role="button">Find New Machines on Network (slow...)</a>
-</div>
+<div style="display:flex; flex-direction: column;">
+        <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Manager</h1>
 
-<p style="height:30px;"></p>
+        {% for machine in machines %}
+        {% if machine.is_manager %}
+
+        {% include "rorender/com_machine_card.html" %}
+
+        {% endif %}
+        {% endfor %}
+
+    </div>
 
 <div style="display:flex; flex-direction: row; justify-content: space-between;">
 
@@ -17,7 +23,7 @@
                 <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Workstations</h1>
         
                 {% for machine in machines %}
-                {% if machine.is_workstation %}
+                {% if machine.is_workstation and not machine.is_manager %}
         
                 {% include "rorender/com_machine_card.html" %}
         
@@ -30,7 +36,7 @@
         <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Available</h1>
 
         {% for machine in machines %}
-        {% if machine.running and not machine.rendering %}
+        {% if machine.running and not machine.rendering and not machine.is_workstation and not machine.is_manager %}
 
         {% include "rorender/com_machine_card.html" %}
 
@@ -43,7 +49,7 @@
             <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Rendering</h1>
     
             {% for machine in machines %}
-            {% if machine.rendering %}
+            {% if machine.rendering and not machine.is_manager and not machine.is_workstation %}
     
             {% include "rorender/com_machine_card.html" %}
     

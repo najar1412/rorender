@@ -9,6 +9,7 @@ class Machine(models.Model):
     vray_running = models.BooleanField(default=False)
     corona_running = models.BooleanField(default=False)
     is_workstation = models.BooleanField(default=False)
+    is_manager = models.BooleanField(default=False)
 
     def __str__(self):
         return f'<{self.name}({self.ip})>'

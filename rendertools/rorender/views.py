@@ -1,15 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 
 from .models import Machine
-from .module.network import LocalNetworkScanner
-from .module.database import process_new_ports
+from .module.network import LocalNetworkScanner, rdc_file_in_memory
+from .module.database import process_new_ports, is_workstation, is_manager
 
 
 def index(request):
     """Landing page"""
     machines = Machine.objects.all()
     context = {'machines': machines}
-
 
     return render(request, 'rorender/index.html', context)
 
@@ -26,7 +25,6 @@ def refresh(request):
             ports=v[1], machine=Machine.objects.filter(ip=v[0]).first()
         )
         machine.save()
-
 
     return redirect('index')
 
@@ -46,5 +44,49 @@ def pop(request):
             process_new_ports(ports=v[1], machine=new_machine)
             new_machine.save()
 
-
     return redirect('index')
+
+
+def manage(request):
+    """Manager page"""
+    machines = Machine.objects.all()
+    context = {
+        'machines': machines,
+        'manage': True
+    }
+
+    return render(request, 'rorender/index.html', context)
+
+
+def make_manager(request):
+    print('make manage')
+
+    return redirect('manage')
+
+
+def make_workstation(request):
+    if request.method=='GET':
+        machine_pk = request.GET.get('pk')
+        machine = is_workstation(machine_pk)
+        machine.save()
+
+    return redirect('manage')
+
+
+def make_manager(request):
+    if request.method=='GET':
+        machine_pk = request.GET.get('pk')
+        machine = is_manager(machine_pk)
+        machine.save()
+
+    return redirect('manage')
+
+
+def remote_connect(request):
+    if request.method=='GET':
+        ip = request.GET.get('ip')
+
+        return rdc_file_in_memory(HttpResponse, ip)
+
+    else:
+        return redirect('index')

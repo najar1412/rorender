@@ -61,7 +61,7 @@ def kill_process(process_name=None):
 
     for index in range(int(BytesReturned.value / ctypes.sizeof(ctypes.wintypes.DWORD))):
         ProcessId = ProcessIds[index]
-        hProcess = OpenProcess(PROCESS_TERMINATE | PROCESS_QUERY_INFORMATION, False, ProcessId)
+        hProcess = OpenProcess(PROCESS_TERMINATE, PROCESS_QUERY_INFORMATION, False, ProcessId)
         if hProcess:
             ImageFileName = (ctypes.c_char*MAX_PATH)()
             if GetProcessImageFileName(hProcess, ImageFileName, MAX_PATH)>0:

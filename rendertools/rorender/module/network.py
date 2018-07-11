@@ -28,7 +28,8 @@ class LocalNetworkScanner():
     """manages the scanning of local networks"""
     def __init__(self, local_ip_root=None, TEST=False):
         """AUG:
-        local_ip_root: str: root ip address of a network to scan, ex. 'xxx.xxx.xxx.'
+        local_ip_root: str: root ip address of a network to 
+        scan, ex. 'xxx.xxx.xxx.'
         """
         if not local_ip_root:
             self.local_ip_root = '192.168.1.'
@@ -119,3 +120,15 @@ class LocalNetworkScanner():
     def __repr__(self):
         return f'<LocalNetworkScanner: ip_root={self.local_ip_root}>'
 
+
+def rdc_file_in_memory(HttpResponse, ip):
+    """builds in memory rdc connection file.
+    HttpResponse: django HttpResponse object.
+    ip: str: ip address.
+    return: django HttpResponse object.
+    """
+    data =  f'auto connect:i:1\nfull address:s:{ip}'
+    response = HttpResponse(data, content_type='application/rdp')
+    response['Content-Disposition'] = f'attachment; filename="{ip}.rdp"'
+
+    return response
