@@ -8,7 +8,7 @@
         <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Manager</h1>
 
         {% for machine in machines %}
-        {% if machine.is_manager %}
+        {% if machine.is_manager and not machine.is_workstation and machine.running %}
 
         {% include "rorender/com_machine_card.html" %}
 
@@ -59,7 +59,7 @@
         </div>
 
     <div style="display:flex; flex-direction: column;">
-        <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Not Found</h1>
+        <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Offline</h1>
 
         {% for machine in machines %}
         {% if not machine.running %}

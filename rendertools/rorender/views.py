@@ -7,8 +7,11 @@ from .module.database import process_new_ports, is_workstation, is_manager
 
 def index(request):
     """Landing page"""
-    machines = Machine.objects.all()
-    context = {'machines': machines}
+    machines = Machine.objects.all().order_by('name')
+    context = {
+        'machines': machines,
+        'manage': False
+        }
 
     return render(request, 'rorender/index.html', context)
 
@@ -49,7 +52,7 @@ def pop(request):
 
 def manage(request):
     """Manager page"""
-    machines = Machine.objects.all()
+    machines = Machine.objects.all().order_by('name')
     context = {
         'machines': machines,
         'manage': True
