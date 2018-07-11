@@ -44,6 +44,8 @@
             {% else %}
             <a href="/rorender/make_manager/?pk={{machine.pk}}">Remove Manager</a>, 
             {% endif %}
+            <a href="/rorender/make_rhino/?pk={{machine.pk}}">Has Rhino</a>,
+            <a href="/rorender/make_autocad/?pk={{machine.pk}}">Had AutoCad</a>
             <strike><a href="">Edit Name</a></strike>,
             <strike><a href="">Assign To...</a></strike>
         </div>
@@ -52,7 +54,7 @@
 
     </div>
 
-    {% if not machine.is_manager %}
+    {% if not machine.is_manager and not manage %}
 
     <div style="display:flex;flex-direction: row;">
             {% if machine.vray_running %}

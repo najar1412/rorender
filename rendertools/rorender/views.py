@@ -2,7 +2,9 @@ from django.shortcuts import render, redirect, HttpResponse
 
 from .models import Machine
 from .module.network import LocalNetworkScanner, rdc_file_in_memory
-from .module.database import process_new_ports, is_workstation, is_manager
+from .module.database import (
+    process_new_ports, is_workstation, is_manager, has_rhino, has_autocad
+)
 
 
 def index(request):
@@ -80,6 +82,24 @@ def make_manager(request):
     if request.method=='GET':
         machine_pk = request.GET.get('pk')
         machine = is_manager(machine_pk)
+        machine.save()
+
+    return redirect('manage')
+
+
+def make_rhino(request):
+    if request.method=='GET':
+        machine_pk = request.GET.get('pk')
+        machine = has_rhino(machine_pk)
+        machine.save()
+
+    return redirect('manage')
+
+
+def make_autocad(request):
+    if request.method=='GET':
+        machine_pk = request.GET.get('pk')
+        machine = has_autocad(machine_pk)
         machine.save()
 
     return redirect('manage')

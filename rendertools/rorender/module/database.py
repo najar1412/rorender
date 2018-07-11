@@ -56,3 +56,25 @@ def is_manager(pk):
         machine.is_manager = True
 
     return machine
+
+
+def has_rhino(pk):
+    machine = Machine.objects.filter(pk=pk).first()
+
+    if machine.has_rhino == True:
+        machine.has_rhino = False
+    else:
+        machine.has_rhino = True
+
+    return machine
+
+
+def has_autocad(pk):
+    machine = Machine.objects.filter(pk=pk).first()
+
+    if machine.has_autocad == True:
+        machine.has_autocad = False
+    else:
+        machine.has_autocad = True
+
+    return machine
