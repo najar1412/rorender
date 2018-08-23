@@ -6,6 +6,7 @@ from .module.database import (
     process_new_ports, is_workstation, is_manager, has_rhino, has_autocad
 )
 
+# database file management, if db_file.sqite3 exists... etv
 
 def index(request):
     """Landing page"""
@@ -34,7 +35,7 @@ def refresh(request):
     return redirect('index')
 
 
-def pop(request):
+def scan_ip_range(request):
     """Endpoint that scans the local network for machines with selected
     ports open"""
     local_machines = LocalNetworkScanner().scan()

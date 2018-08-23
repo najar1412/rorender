@@ -26,7 +26,7 @@ TEST_DATA = {
 
 class LocalNetworkScanner():
     """manages the scanning of local networks"""
-    def __init__(self, local_ip_root=None, TEST=False):
+    def __init__(self, local_ip_root=None, TEST=False, TEST_DATA=TEST_DATA):
         """AUG:
         local_ip_root: str: root ip address of a network to 
         scan, ex. 'xxx.xxx.xxx.'
@@ -86,8 +86,8 @@ class LocalNetworkScanner():
         return: hostname and ip address"""
         result = {}
 
-        if self.TEST == True:
-            return TEST_DATA
+        if self.TEST:
+            return self.TEST_DATA
 
         for ip in ips:
             found_ports = self._found_ports(ip)
@@ -105,7 +105,7 @@ class LocalNetworkScanner():
         result = {}
 
         if self.TEST == True:
-            return TEST_DATA
+            return self.TEST_DATA
 
         for ip_ext in range(1, 256):
             ip = f'{self.local_ip_root}{str(ip_ext)}'
