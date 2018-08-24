@@ -78,6 +78,7 @@ class LocalNetworkScanner():
 
             if len(found_ports) > 0:
                 result[socket.getfqdn(ip)] = (ip, found_ports)
+                print(result)
 
         return result
 

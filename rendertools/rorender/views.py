@@ -11,8 +11,9 @@ from .module.database import (
 
 #TODO: database file management, if db_file.sqite3 exists... etv
 #TODO: refactor FAKE_DATA, FAKE_LAN_IP
-#TODO: delete from frontend
-#TODO: add via ip, hostname
+#TODO: add via ip
+#TODO: sometimes a machine is found, but cant be find in database, but it is.
+#TODO: handle computers that cant be found by hostname, just ip.
 
 FAKE_LAN_IP = '172.16.30.'
 FAKE_DEEP_LAN_IP = '172.16.'
@@ -65,6 +66,8 @@ def refresh(request):
 
     # else machines in database not found in networkscan
     machines = Machine.objects.all().order_by('name')
+    print(machines)
+    print(database_machines_found)
     for machine in machines:
         if machine.name in database_machines_found:
             pass
@@ -103,6 +106,7 @@ def scan_hostname(request):
             hostname = form.cleaned_data['hostname']
 
             if machine_exists(hostname):
+                print(hostname)
                 pass
             else:
                 machine = LocalNetworkScanner(FAKE_LAN_IP).find_by_hostname(hostname)
