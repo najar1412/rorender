@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, HttpResponse
 
+from .forms import find_by_hostname
 from .models import Machine
 from .module.network import LocalNetworkScanner, rdc_file_in_memory
 from .module.database import (
@@ -9,9 +10,11 @@ from .module.database import (
 
 #TODO: database file management, if db_file.sqite3 exists... etv
 #TODO: refactor FAKE_DATA, FAKE_LAN_IP
+#TODO: delete from frontend
+#TODO: add via ip, hostname
 
-FAKE_LAN_IP = '192.168.1.'
-FAKE_DEEP_LAN_IP = '192.168.'
+FAKE_LAN_IP = '172.16.30.'
+FAKE_DEEP_LAN_IP = '172.16.'
 
 FAKE_DATA = {
     '192.168.1.8': ('192.168.1.8', ['3389']), 
@@ -38,7 +41,8 @@ def index(request):
     machines = Machine.objects.all().order_by('name')
     context = {
         'machines': machines,
-        'manage': False
+        'manage': False,
+        'form': find_by_hostname
         }
 
     return render(request, 'rorender/index.html', context)
@@ -60,7 +64,6 @@ def refresh(request):
 
     # else machines in database not found in networkscan
     machines = Machine.objects.all().order_by('name')
-    print(machines)
     for machine in machines:
         if machine.name in database_machines_found:
             pass
@@ -75,7 +78,7 @@ def refresh(request):
 def scan_ip_range(request):
     """Endpoint that scans the local network for machines with selected
     ports open"""
-    local_machines = LocalNetworkScanner(FAKE_DEEP_LAN_IP).slow_scan()
+    local_machines = LocalNetworkScanner(FAKE_LAN_IP).scan()
 
     for k, v in local_machines.items():
         if Machine.objects.filter(ip=v[0]).exists():
@@ -86,6 +89,26 @@ def scan_ip_range(request):
             new_machine = Machine(name=k, ip=v[0], port=' '.join(v[1]))
             process_new_ports(ports=v[1], machine=new_machine)
             new_machine.save()
+
+    return redirect('index')
+
+
+def scan_hostname(request):
+    """Endpoint that scans lan for hostname"""
+    #TODO: IMP process_new_ports
+    if request.method == 'POST':
+        form = find_by_hostname(request.POST)
+        if form.is_valid():
+            hostname = form.cleaned_data['hostname']
+
+            machine = LocalNetworkScanner(FAKE_LAN_IP).find_by_hostname(hostname)
+            if machine:
+                machine_hostname = list(machine.keys())[0]
+                new_machine = Machine(name=machine_hostname, ip=machine[machine_hostname][0], port=' '.join(machine[machine_hostname][1]))
+                # process_new_ports(ports=machine[machine[0]][1], machine=new_machine)
+                new_machine.save()
+
+            return redirect('index')
 
     return redirect('index')
 

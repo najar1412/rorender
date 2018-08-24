@@ -32,6 +32,8 @@ def process_new_ports(ports, ip=None, machine=None):
     else:
         machine.corona_running = False
 
+    machine.running = True
+
 
     return machine
 

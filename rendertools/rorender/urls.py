@@ -7,6 +7,7 @@ urlpatterns = [
     path('pop/', views.scan_ip_range, name='scan_ip_range'),
     path('refresh/', views.refresh, name='refresh'),
     path('manage/', views.manage, name='manage'),
+    path('scan_hostname/', views.scan_hostname, name='scan_hostname'),
     path('make_workstation/', views.make_workstation, name='make_workstation'),
     path('make_manager/', views.make_manager, name='make_manager'),
     path('make_rhino/', views.make_rhino, name='make_rhino'),

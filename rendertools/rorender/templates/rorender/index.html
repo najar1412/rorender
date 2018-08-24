@@ -4,6 +4,20 @@
 
 {% block content %}
 
+<h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Add Machines</h1>
+
+<form action="scan_hostname/" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="textarea-hostname">Add By Hostname:</label>
+     <br>
+      {{form}}
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </form>
+
+<hr>
+
 <div style="display:flex; flex-direction: column;">
         <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Manager</h1>
 
@@ -80,5 +94,8 @@
     </div>
 
 </div>
+
+
+
 
 {% endblock %}

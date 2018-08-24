@@ -115,7 +115,6 @@ class LocalNetworkScanner():
         for ip_third in range(1, 256):
             for ip_fourth in range(1, 256):
                 ip = f'{self.local_ip_root}{str(ip_third)}.{ip_fourth}'
-                print(ip)
                 found_ports = self._found_ports(ip)
 
                 if len(found_ports) > 0:
@@ -123,9 +122,15 @@ class LocalNetworkScanner():
 
         return result
 
+    def find_by_hostname(self, hostname):
+        try:
+            ip_from_hostname = socket.gethostbyname(hostname)
 
-    def __repr__(self):
-        return f'<LocalNetworkScanner: ip_root={self.local_ip_root}>'
+            if socket.gethostbyname_ex(hostname):
+                return {hostname: (ip_from_hostname, ['20204'])}
+        except:
+            print('Hostname not found on network.')
+            return False
 
 
     def __repr__(self):
