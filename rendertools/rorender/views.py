@@ -8,7 +8,10 @@ from .module.database import (
 
 
 #TODO: database file management, if db_file.sqite3 exists... etv
-#TODO: refactor FAKE_DATA
+#TODO: refactor FAKE_DATA, FAKE_LAN_IP
+
+FAKE_LAN_IP = '192.168.1.'
+FAKE_DEEP_LAN_IP = '192.168.'
 
 FAKE_DATA = {
     '192.168.1.8': ('192.168.1.8', ['3389']), 
@@ -46,7 +49,7 @@ def refresh(request):
     process"""
 
     ips_from_database = [x.ip for x in Machine.objects.all()]
-    database_machines_found = LocalNetworkScanner().refresh(ips_from_database)
+    database_machines_found = LocalNetworkScanner(FAKE_LAN_IP).refresh(ips_from_database)
 
     # if machine in database found on netowkr
     for k, v in database_machines_found.items():
@@ -72,7 +75,7 @@ def refresh(request):
 def scan_ip_range(request):
     """Endpoint that scans the local network for machines with selected
     ports open"""
-    local_machines = LocalNetworkScanner(TEST=True, TEST_DATA=FAKE_DATA).scan()
+    local_machines = LocalNetworkScanner(FAKE_DEEP_LAN_IP).slow_scan()
 
     for k, v in local_machines.items():
         if Machine.objects.filter(ip=v[0]).exists():

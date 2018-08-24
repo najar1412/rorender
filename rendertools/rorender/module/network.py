@@ -7,13 +7,13 @@ import socket
 
 class LocalNetworkScanner():
     """manages the scanning of local networks"""
-    def __init__(self, local_ip_root=None, TEST=False, TEST_DATA=None):
+    def __init__(self, local_ip_root, TEST=False, TEST_DATA=None):
         """AUG:
         local_ip_root: str: root ip address of a network to 
         scan, ex. 'xxx.xxx.xxx.'
         """
         if not local_ip_root:
-            self.local_ip_root = '192.168.1.'
+            self.local_ip_root = local_ip_root
 
         else:
             self.local_ip_root = local_ip_root
@@ -81,9 +81,12 @@ class LocalNetworkScanner():
 
 
     def scan(self):
-        """scans local machines for accessable hostnames and ips
+        """scans local machines for accessable hostnames and ips, one ip column
+        deep (192.168.30.xxx). approx 1 minute.
         return type: dict
         return: hostname and ip address"""
+        #TODO: scan should not replace current database machines, append
+        # new ones.
         result = {}
 
         if self.TEST:
@@ -97,6 +100,32 @@ class LocalNetworkScanner():
                 result[socket.getfqdn(ip)] = (ip, found_ports)
 
         return result
+
+    
+    def slow_scan(self):
+        """scans local machines for accessable hostnames and ips, two ip column
+        deep (192.168.xxx). approx 96 minutes :p.
+        return type: dict
+        return: hostname and ip address"""
+        result = {}
+
+        if self.TEST:
+            return self.test_data
+
+        for ip_third in range(1, 256):
+            for ip_fourth in range(1, 256):
+                ip = f'{self.local_ip_root}{str(ip_third)}.{ip_fourth}'
+                print(ip)
+                found_ports = self._found_ports(ip)
+
+                if len(found_ports) > 0:
+                    result[socket.getfqdn(ip)] = (ip, found_ports)
+
+        return result
+
+
+    def __repr__(self):
+        return f'<LocalNetworkScanner: ip_root={self.local_ip_root}>'
 
 
     def __repr__(self):

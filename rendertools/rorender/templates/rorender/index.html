@@ -8,7 +8,7 @@
         <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Manager</h1>
 
         {% for machine in machines %}
-        {% if machine.is_manager and not machine.is_workstation %}
+        {% if machine.is_manager %}
 
         {% if machine.running %}
 
