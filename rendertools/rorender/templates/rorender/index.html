@@ -16,6 +16,16 @@
     </div>
   </form>
 
+  <form action="scan/" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="textarea-hostname">Scan IP Range:</label>
+     <br>
+      {{form_scan_ip}}
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </form>
+
 <hr>
 
 <div style="display:flex; flex-direction: column;">
@@ -39,7 +49,7 @@
 
     </div>
 
-<div style="display:flex; flex-direction: row; justify-content: space-between;">
+<div style="display:flex; flex-wrap: wrap;flex-direction: row; justify-content: space-between;">
 
         <div style="display:flex; flex-direction: column;">
                 <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Workstations</h1>

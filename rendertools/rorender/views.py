@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, HttpResponse
 
-from .forms import find_by_hostname
+from .forms import find_by_hostname, scan_ip
 from .models import Machine
 from .module.network import LocalNetworkScanner, rdc_file_in_memory
 from .module.database import (
@@ -15,7 +15,7 @@ from .module.database import (
 #TODO: sometimes a machine is found, but cant be find in database, but it is.
 #TODO: handle computers that cant be found by hostname, just ip.
 
-FAKE_LAN_IP = '172.16.30.'
+FAKE_LAN_IP = '192.168.56.'
 FAKE_DEEP_LAN_IP = '172.16.'
 
 FAKE_DATA = {
@@ -44,7 +44,8 @@ def index(request):
     context = {
         'machines': machines,
         'manage': False,
-        'form': find_by_hostname
+        'form': find_by_hostname,
+        'form_scan_ip': scan_ip
         }
 
     return render(request, 'rorender/index.html', context)
@@ -109,7 +110,7 @@ def scan_hostname(request):
                 print(hostname)
                 pass
             else:
-                machine = LocalNetworkScanner(FAKE_LAN_IP).find_by_hostname(hostname)
+                machine = LocalNetworkScanner().find_by_hostname(hostname)
                 if machine:
                     machine_hostname = list(machine.keys())[0]
                     new_machine = Machine(name=machine_hostname, ip=machine[machine_hostname][0], port=' '.join(machine[machine_hostname][1]))

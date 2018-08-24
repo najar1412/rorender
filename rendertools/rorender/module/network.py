@@ -7,7 +7,7 @@ import socket
 
 class LocalNetworkScanner():
     """manages the scanning of local networks"""
-    def __init__(self, local_ip_root, TEST=False, TEST_DATA=None):
+    def __init__(self, local_ip_root=None, TEST=False, TEST_DATA=None):
         """AUG:
         local_ip_root: str: root ip address of a network to 
         scan, ex. 'xxx.xxx.xxx.'
