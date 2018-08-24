@@ -5,28 +5,9 @@ Contains source code for scanning local windows(?) networks.
 import socket
 
 
-TEST_DATA = {
-    '192.168.1.8': ('192.168.1.8', ['3389']), 
-    'WS-CYRUS': ('192.168.1.10', ['135', '3389']), 
-    'WS-BREWSTER': ('192.168.1.14', ['20204', '135', '3389']), 
-    'WS-DEREK': ('192.168.1.16', ['135', '3389']), 
-    'WS-CHEMI': ('192.168.1.17', ['135', '3389', '19667']), 
-    'WS-CHAZ': ('192.168.1.18', ['30304', '135', '3389']), 
-    'WS-ERNIE': ('192.168.1.19', ['20204', '135', '3389']), 
-    'WS-CESAREA': ('192.168.1.20', ['20204', '135', '3389']), 
-    'WS-BORIS': ('192.168.1.21', ['135']), 
-    '192.168.1.60': ('192.168.1.60', ['30304', '3389']), 
-    'WS-FIONA': ('192.168.1.80', ['30304', '135']), 
-    'WS-DERMIT': ('192.168.1.81', ['30304', '135', '3389']), 
-    'ws-Flubber': ('192.168.1.82', ['135', '3389', '19667']), 
-    'WS-FRIDA': ('192.168.1.83', ['135', '3389']), 
-    'WS-DONOVAN': ('192.168.1.84', ['20204', '19666', '3389']), 
-    'WS-DORIS': ('192.168.1.86', ['135', '3389', '20204'])
-    }
-
 class LocalNetworkScanner():
     """manages the scanning of local networks"""
-    def __init__(self, local_ip_root=None, TEST=False, TEST_DATA=TEST_DATA):
+    def __init__(self, local_ip_root=None, TEST=False, TEST_DATA=None):
         """AUG:
         local_ip_root: str: root ip address of a network to 
         scan, ex. 'xxx.xxx.xxx.'
@@ -48,6 +29,7 @@ class LocalNetworkScanner():
             self.open_windows_ports.insert(0, port)
 
         self.TEST = TEST
+        self.test_data = TEST_DATA
 
 
     def _found_ports(self, ip):
@@ -57,13 +39,13 @@ class LocalNetworkScanner():
         result = []
 
         for port in self.open_windows_ports:
-            if self.ip_accessable(ip, port):
+            if self._ip_accessable(ip, port):
                 result.append(str(port))
 
         return result
 
 
-    def ip_accessable(self, ip, port):
+    def _ip_accessable(self, ip, port):
         """checks if a machine is accessable via it's ip address
         ip: str: ip of machine to check
         return type: bool"""
@@ -87,7 +69,7 @@ class LocalNetworkScanner():
         result = {}
 
         if self.TEST:
-            return self.TEST_DATA
+            return self.test_data
 
         for ip in ips:
             found_ports = self._found_ports(ip)
@@ -104,8 +86,8 @@ class LocalNetworkScanner():
         return: hostname and ip address"""
         result = {}
 
-        if self.TEST == True:
-            return self.TEST_DATA
+        if self.TEST:
+            return self.test_data
 
         for ip_ext in range(1, 256):
             ip = f'{self.local_ip_root}{str(ip_ext)}'

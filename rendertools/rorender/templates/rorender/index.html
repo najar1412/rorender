@@ -8,9 +8,17 @@
         <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Manager</h1>
 
         {% for machine in machines %}
-        {% if machine.is_manager and not machine.is_workstation and machine.running %}
+        {% if machine.is_manager and not machine.is_workstation %}
 
-        {% include "rorender/com_machine_card.html" %}
+        {% if machine.running %}
+
+        {% include "rorender/com_machine_card.html" %}        
+
+        {% else %}
+
+        {% include "rorender/com_machine_card_off.html" %}
+
+        {% endif %}
 
         {% endif %}
         {% endfor %}
@@ -23,7 +31,7 @@
                 <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Workstations</h1>
         
                 {% for machine in machines %}
-                {% if machine.is_workstation and not machine.is_manager %}
+                {% if machine.is_workstation and not machine.is_manager and machine.running %}
         
                 {% include "rorender/com_machine_card.html" %}
         
@@ -62,7 +70,7 @@
         <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Offline</h1>
 
         {% for machine in machines %}
-        {% if not machine.running %}
+        {% if not machine.running and not machine.is_manager %}
 
         {% include "rorender/com_machine_card_off.html" %}
 
