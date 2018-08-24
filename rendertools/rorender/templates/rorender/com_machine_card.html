@@ -46,19 +46,19 @@
             <a href="/rorender/make_manager/?pk={{machine.pk}}">Remove Manager</a>, 
             {% endif %}
             {% if not machine.has_rhino %}
-            <a href="/rorender/make_rhino/?pk={{machine.pk}}">No Rhino</a>,
+            <a href="/rorender/make_rhino/?pk={{machine.pk}}">Add Rhino</a>,
             {% else %}
-            <a href="/rorender/make_rhino/?pk={{machine.pk}}">Has Rhino</a>,
+            <a href="/rorender/make_rhino/?pk={{machine.pk}}">Remove Rhino</a>,
             {% endif %}
             {% if not machine.has_autocad %}
-            <a href="/rorender/make_autocad/?pk={{machine.pk}}">No AutoCad</a>
+            <a href="/rorender/make_autocad/?pk={{machine.pk}}">Add AutoCad</a>,
             {% else %}
-            <a href="/rorender/make_autocad/?pk={{machine.pk}}">Has AutoCad</a>
+            <a href="/rorender/make_autocad/?pk={{machine.pk}}">Remove AutoCad</a>,
             {% endif %}
 
 
 
-
+            <a href="/rorender/delete_machine_from_db/?pk={{machine.pk}}">Delete</a>,
             
             <strike><a href="">Edit Name</a></strike>,
             <strike><a href="">Assign To...</a></strike>

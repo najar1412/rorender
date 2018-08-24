@@ -12,6 +12,8 @@ class LocalNetworkScanner():
         local_ip_root: str: root ip address of a network to 
         scan, ex. 'xxx.xxx.xxx.'
         """
+        # TODO: Remove local_ip_root from constructor, should be an aug for the function
+        # that needs it.
         if not local_ip_root:
             self.local_ip_root = local_ip_root
 
@@ -122,14 +124,17 @@ class LocalNetworkScanner():
 
         return result
 
+
     def find_by_hostname(self, hostname):
         try:
-            ip_from_hostname = socket.gethostbyname(hostname)
+            ip_from_hostname = socket.gethostbyname_ex(hostname)
+            hostname_from_ip = socket.gethostbyaddr(ip_from_hostname[0])
 
-            if socket.gethostbyname_ex(hostname):
-                return {hostname: (ip_from_hostname, ['20204'])}
+            if ip_from_hostname:
+                return {hostname_from_ip[0]: (ip_from_hostname[2][0], ['20204'])}
+
         except:
-            print('Hostname not found on network.')
+            print('ERR: Hostname not found on network.')
             return False
 
 

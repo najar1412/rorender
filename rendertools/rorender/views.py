@@ -4,7 +4,8 @@ from .forms import find_by_hostname
 from .models import Machine
 from .module.network import LocalNetworkScanner, rdc_file_in_memory
 from .module.database import (
-    process_new_ports, is_workstation, is_manager, has_rhino, has_autocad
+    process_new_ports, is_workstation, is_manager, has_rhino, has_autocad,
+    machine_exists, delete_machine
 )
 
 
@@ -101,14 +102,17 @@ def scan_hostname(request):
         if form.is_valid():
             hostname = form.cleaned_data['hostname']
 
-            machine = LocalNetworkScanner(FAKE_LAN_IP).find_by_hostname(hostname)
-            if machine:
-                machine_hostname = list(machine.keys())[0]
-                new_machine = Machine(name=machine_hostname, ip=machine[machine_hostname][0], port=' '.join(machine[machine_hostname][1]))
-                # process_new_ports(ports=machine[machine[0]][1], machine=new_machine)
-                new_machine.save()
+            if machine_exists(hostname):
+                pass
+            else:
+                machine = LocalNetworkScanner(FAKE_LAN_IP).find_by_hostname(hostname)
+                if machine:
+                    machine_hostname = list(machine.keys())[0]
+                    new_machine = Machine(name=machine_hostname, ip=machine[machine_hostname][0], port=' '.join(machine[machine_hostname][1]))
+                    # process_new_ports(ports=machine[machine[0]][1], machine=new_machine)
+                    new_machine.save()
 
-            return redirect('index')
+                return redirect('index')
 
     return redirect('index')
 
@@ -126,6 +130,14 @@ def manage(request):
 
 def make_manager(request):
     print('make manage')
+
+    return redirect('manage')
+
+
+def delete_machine_from_db(request):
+    if request.method=='GET':
+        machine_pk = request.GET.get('pk')
+        delete_machine(machine_pk)
 
     return redirect('manage')
 

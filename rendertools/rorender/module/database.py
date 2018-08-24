@@ -5,6 +5,27 @@ Contains source code for working with the django orm
 from ..models import Machine
 
 
+def machine_exists(hostname):
+    """Checks is hostname is already in database"""
+    lower_hostname = hostname.lower()
+    machines_in_database = [x.name.lower() for x in Machine.objects.all()]
+
+    if lower_hostname in machines_in_database:
+        return True
+    else:
+        return False
+
+
+def delete_machine(pk):
+    try:
+        machine = Machine.objects.filter(pk=pk).first()
+        machine.delete()
+        
+        return True
+
+    except:
+        return False
+
 def process_new_ports(ports, ip=None, machine=None):
     """Loops over a list of ports and updates django object accordingly.
     ports: list: str repr of ports.
