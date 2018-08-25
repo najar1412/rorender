@@ -4,6 +4,8 @@
 
 {% block content %}
 
+{% if manage %}
+
 <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Add Machines</h1>
 
 <form action="scan_hostname/" method="post">
@@ -16,7 +18,7 @@
     </div>
   </form>
 
-  <form action="scan/" method="post">
+  <form action="pop/" method="post">
     {% csrf_token %}
     <div class="form-group">
       <label for="textarea-hostname">Scan IP Range:</label>
@@ -27,6 +29,8 @@
   </form>
 
 <hr>
+
+{% endif %}
 
 <div style="display:flex; flex-direction: column;">
         <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Manager</h1>

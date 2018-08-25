@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, HttpResponse
 
 from .forms import find_by_hostname, scan_ip
 from .models import Machine
-from .module.network import LocalNetworkScanner, rdc_file_in_memory
+from .module.network import LocalNetworkScanner, rdc_file_in_memory, PortBuilder
 from .module.database import (
     process_new_ports, is_workstation, is_manager, has_rhino, has_autocad,
     machine_exists, delete_machine
@@ -10,13 +10,19 @@ from .module.database import (
 
 
 #TODO: database file management, if db_file.sqite3 exists... etv
-#TODO: refactor FAKE_DATA, FAKE_LAN_IP
-#TODO: add via ip
+#TODO: refactor FAKE_DATA
 #TODO: sometimes a machine is found, but cant be find in database, but it is.
 #TODO: handle computers that cant be found by hostname, just ip.
 
-FAKE_LAN_IP = '192.168.56.'
-FAKE_DEEP_LAN_IP = '172.16.'
+# global ports to be used while scanning
+corona_ports = [19667, 19666, 19668]
+vray_ports = [20204, 30304]
+open_windows_ports = [135, 3389]
+# add them to the PortBuilder for later use
+PORTS = PortBuilder()
+PORTS.add(corona_ports)
+PORTS.add(vray_ports)
+PORTS.add(open_windows_ports)
 
 FAKE_DATA = {
     '192.168.1.8': ('192.168.1.8', ['3389']), 
@@ -37,15 +43,37 @@ FAKE_DATA = {
     'WS-DORIS': ('192.168.1.86', ['135', '3389', '20204'])
     }
 
+
 def index(request):
     """Landing page"""
     #TODO: imp: check if new/empty database
     machines = Machine.objects.all().order_by('name')
+
+    local_data = LocalNetworkScanner().get_local_data()
+
     context = {
         'machines': machines,
         'manage': False,
         'form': find_by_hostname,
-        'form_scan_ip': scan_ip
+        'form_scan_ip': scan_ip,
+        'local_data': local_data
+        }
+
+    return render(request, 'rorender/index.html', context)
+
+
+def manage(request):
+    #TODO: imp: check if new/empty database
+    machines = Machine.objects.all().order_by('name')
+
+    local_data = LocalNetworkScanner().get_local_data()
+
+    context = {
+        'machines': machines,
+        'manage': True,
+        'form': find_by_hostname,
+        'form_scan_ip': scan_ip,
+        'local_data': local_data
         }
 
     return render(request, 'rorender/index.html', context)
@@ -56,7 +84,7 @@ def refresh(request):
     process"""
 
     ips_from_database = [x.ip for x in Machine.objects.all()]
-    database_machines_found = LocalNetworkScanner(FAKE_LAN_IP).refresh(ips_from_database)
+    database_machines_found = LocalNetworkScanner(ports=PORTS).refresh(ips_from_database)
 
     # if machine in database found on netowkr
     for k, v in database_machines_found.items():
@@ -83,17 +111,48 @@ def refresh(request):
 def scan_ip_range(request):
     """Endpoint that scans the local network for machines with selected
     ports open"""
-    local_machines = LocalNetworkScanner(FAKE_LAN_IP).scan()
 
-    for k, v in local_machines.items():
-        if Machine.objects.filter(ip=v[0]).exists():
-            machine = process_new_ports(ports=v[1], ip=v[0])
-            machine.save()
+    if request.method == 'POST':
+        form = scan_ip(request.POST)
+        if form.is_valid():
+            ip_one = form.cleaned_data['ip_one']
+            ip_two = form.cleaned_data['ip_two']
+            ip_three = form.cleaned_data['ip_three']
+            ip_four = form.cleaned_data['ip_four']
 
-        else:
-            new_machine = Machine(name=k, ip=v[0], port=' '.join(v[1]))
-            process_new_ports(ports=v[1], machine=new_machine)
-            new_machine.save()
+            ip_list = [ip_one, ip_two, ip_three, ip_four]
+
+            if ip_four:
+                # searching using full ip
+                user_ip = f'{ip_one}.{ip_two}.{ip_three}.{ip_four}'
+                machine = LocalNetworkScanner().find_by_ip(user_ip)
+                hostname = list(machine.keys())[0]
+
+                if Machine.objects.filter(ip=machine[hostname][0]).exists():
+                        machine = process_new_ports(ports=machine[hostname][1], ip=machine[hostname][0])
+                        machine.save()
+
+                else:
+                    new_machine = Machine(name=hostname, ip=machine[hostname][0], port=' '.join(machine[hostname][1]))
+                    process_new_ports(ports=machine[hostname][1], machine=new_machine)
+                    new_machine.save()
+
+                return redirect('index')
+
+            else:
+                user_ip = '.'.join([str(x) for x in ip_list if x]) + '.'
+                local_machines = LocalNetworkScanner(user_ip, ports=PORTS).scan()
+                for k, v in local_machines.items():
+                    if Machine.objects.filter(ip=v[0]).exists():
+                        machine = process_new_ports(ports=v[1], ip=v[0])
+                        machine.save()
+
+                    else:
+                        new_machine = Machine(name=k, ip=v[0], port=' '.join(v[1]))
+                        process_new_ports(ports=v[1], machine=new_machine)
+                        new_machine.save()
+                
+                    return redirect('index')
 
     return redirect('index')
 
@@ -120,17 +179,6 @@ def scan_hostname(request):
                 return redirect('index')
 
     return redirect('index')
-
-
-def manage(request):
-    """Manager page"""
-    machines = Machine.objects.all().order_by('name')
-    context = {
-        'machines': machines,
-        'manage': True
-    }
-
-    return render(request, 'rorender/index.html', context)
 
 
 def make_manager(request):

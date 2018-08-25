@@ -4,10 +4,10 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('pop/', views.scan_ip_range, name='scan_ip_range'),
+    path('manage/pop/', views.scan_ip_range, name='scan_ip_range'),
     path('refresh/', views.refresh, name='refresh'),
     path('manage/', views.manage, name='manage'),
-    path('scan_hostname/', views.scan_hostname, name='scan_hostname'),
+    path('manage/scan_hostname/', views.scan_hostname, name='scan_hostname'),
     path('make_workstation/', views.make_workstation, name='make_workstation'),
     path('make_manager/', views.make_manager, name='make_manager'),
     path('delete_machine_from_db/', views.delete_machine_from_db, name='delete_machine_from_db'),
