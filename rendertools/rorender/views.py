@@ -84,7 +84,7 @@ def refresh(request):
     process"""
 
     ips_from_database = [x.ip for x in Machine.objects.all()]
-    database_machines_found = LocalNetworkScanner(ports=PORTS).refresh(ips_from_database)
+    database_machines_found = LocalNetworkScanner().refresh(ips_from_database, PORTS)
 
     # if machine in database found on netowkr
     for k, v in database_machines_found.items():
@@ -115,44 +115,28 @@ def scan_ip_range(request):
     if request.method == 'POST':
         form = scan_ip(request.POST)
         if form.is_valid():
-            ip_one = form.cleaned_data['ip_one']
-            ip_two = form.cleaned_data['ip_two']
-            ip_three = form.cleaned_data['ip_three']
-            ip_four = form.cleaned_data['ip_four']
+            #get user ip, ip composition, sanitation
+            _ip = {}
+            for k, v in form.cleaned_data.items():
+                if v:
+                    _ip[k] = v
+                else:
+                    _ip[k] = ''
 
-            ip_list = [ip_one, ip_two, ip_three, ip_four]
+            user_ip = f"{_ip['ip_one']}.{_ip['ip_two']}.{_ip['ip_three']}.{_ip['ip_four']}"
 
-            if ip_four:
-                # searching using full ip
-                user_ip = f'{ip_one}.{ip_two}.{ip_three}.{ip_four}'
-                machine = LocalNetworkScanner().find_by_ip(user_ip)
-                hostname = list(machine.keys())[0]
-
-                if Machine.objects.filter(ip=machine[hostname][0]).exists():
-                        machine = process_new_ports(ports=machine[hostname][1], ip=machine[hostname][0])
-                        machine.save()
+            local_machines = LocalNetworkScanner().scan(user_ip, PORTS)
+            for k, v in local_machines.items():
+                if Machine.objects.filter(ip=v[0]).exists():
+                    machine = process_new_ports(ports=v[1], ip=v[0])
+                    machine.save()
 
                 else:
-                    new_machine = Machine(name=hostname, ip=machine[hostname][0], port=' '.join(machine[hostname][1]))
-                    process_new_ports(ports=machine[hostname][1], machine=new_machine)
+                    new_machine = Machine(name=k, ip=v[0], port=' '.join(v[1]))
+                    process_new_ports(ports=v[1], machine=new_machine)
                     new_machine.save()
-
+            
                 return redirect('index')
-
-            else:
-                user_ip = '.'.join([str(x) for x in ip_list if x]) + '.'
-                local_machines = LocalNetworkScanner(user_ip, ports=PORTS).scan()
-                for k, v in local_machines.items():
-                    if Machine.objects.filter(ip=v[0]).exists():
-                        machine = process_new_ports(ports=v[1], ip=v[0])
-                        machine.save()
-
-                    else:
-                        new_machine = Machine(name=k, ip=v[0], port=' '.join(v[1]))
-                        process_new_ports(ports=v[1], machine=new_machine)
-                        new_machine.save()
-                
-                    return redirect('index')
 
     return redirect('index')
 

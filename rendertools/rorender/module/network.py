@@ -28,8 +28,8 @@ class PortBuilder():
 
 
 class LocalNetworkScanner():
-    """manages the scanning of local networks"""
-    def __init__(self, local_ip_root=None, ports=None, TEST=False, TEST_DATA=None):
+    """Tools to help explore a local network"""
+    def __init__(self, local_ip_root=None, TEST=False, TEST_DATA=None):
         """AUG:
         local_ip_root: str: root ip address of a network to 
         scan, ex. 'xxx.xxx.xxx.'
@@ -42,14 +42,12 @@ class LocalNetworkScanner():
         else:
             self.local_ip_root = local_ip_root
 
-        self.ports = ports
-
         self.TEST = TEST
         self.test_data = TEST_DATA
 
 
-    def _attempt_connection(self, ip, port):
-        """checks if a machine is accessable via it's ip address and port
+    def _socket_connect(self, ip, port):
+        """checks to see if a connection can be able to `port` on `ip`.
         ip: str: ip of machine to check
         port: str: port number
         return type: bool"""
@@ -58,34 +56,58 @@ class LocalNetworkScanner():
         # cannot find it. This is a problem.
         # look into using socket.bind() and process based on errors?
         # https://stackoverflow.com/questions/2470971/fast-way-to-test-if-a-port-is-in-use-using-python
+        # TODO: whats the quickest way to check if a port is listening?
+        #should i first check is the ip is even assessible?
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.settimeout(0.01)
 
             if not sock.connect_ex((ip, port)):
                 return True
 
+        return False
 
-    def _scan_ports(self, ip):
+
+    def _socket_connect_ports(self, ip, ports):
         """loops through a list of ports on an ip address
         ip: str: ip address
-        return: list"""
+        return: list of str"""
         result = []
 
-        for port in self.ports:
-            if self._attempt_connection(ip, port):
+        for port in ports:
+            if self._socket_connect(ip, port):
                 result.append(str(port))
 
         return result
 
 
     def get_local_data(self):
+        #TODO: Get all relative local machine info.
         return {'ip': socket.gethostbyname(socket.gethostname())}
 
 
-    def refresh(self, ips):
+    def _find_by_ip(self, ip):
+        """find device by ip
+        IP: str repr of ip address, 'xxx.xxx.xxx.xxx'
+        return: dict
+        return structure: {'HOSTNAME': ('IP', ['PORTS'])}"""
+        #TODO: dont hardcore in port 20204, use allowed ports list
+        try:
+            print(ip)
+            hostname_from_ip = socket.gethostbyaddr(ip)
+
+            if hostname_from_ip:
+                return {hostname_from_ip[0]: (ip, ['20204'])}
+
+        except:
+            print('ERR: IP not found on network')
+            return False
+
+
+    def refresh(self, ips, ports):
         """uses a list of ips to run port checks on.
         ips: list: str repr of ips.
         return type: dict
+        return structure: {'HOSTNAME': ('IP', [FOUND_PORTS])}
         return: hostname and ip address"""
         result = {}
 
@@ -93,21 +115,17 @@ class LocalNetworkScanner():
             return self.test_data
 
         for ip in ips:
-            found_ports = self._scan_ports(ip)
+            found_ports = self._socket_connect_ports(ip, ports)
 
             if len(found_ports) > 0:
                 result[socket.getfqdn(ip)] = (ip, found_ports)
-                print(result)
 
         return result
 
-    def _portscan_forth(ip):
-        return True
 
-
-    def scan(self):
-        """scans local machines for accessable hostnames and ips, one ip column
-        deep (192.168.30.xxx). approx 1 minute. two ip column deep 
+    def scan(self, ip, ports):
+        """scans local machines for accessable hostnames and ips, one ip
+        column deep (192.168.30.xxx). approx 1 minute. two ip column deep 
         (192.168.xxx.xxx). approx 1 hour 30 minute :p
         return type: dict
         return: hostname and ip address"""
@@ -117,60 +135,51 @@ class LocalNetworkScanner():
         if self.TEST:
             return self.test_data
 
-        if len(self.local_ip_root.split('.')) == 3:
+        # get imp composition
+        ip_comp = ip.split('.')
+        if ip_comp[-1] == '':
+            ip_comp = ip_comp[0:-1]
+
+        if len(ip_comp) == 2:
             print('LLOONNGGG SSEEEAARRCCHHHH')
             for ip_third in range(1, 256):
                 for ip_fourth in range(1, 256):
-                    ip = f'{self.local_ip_root}{str(ip_third)}.{ip_fourth}'
-                    found_ports = self._scan_ports(ip)
+                    ip = f'{ip}{str(ip_third)}.{ip_fourth}'
+                    found_ports = self._socket_connect_ports(ip, ports)
 
                     if len(found_ports) > 0:
                         result[socket.getfqdn(ip)] = (ip, found_ports)
 
             return result
 
-        elif len(self.local_ip_root.split('.')) == 4:
+        elif len(ip_comp) == 3:
+            print('scanner')
             for ip_ext in range(1, 256):
-                ip = f'{self.local_ip_root}{str(ip_ext)}'
-                found_ports = self._scan_ports(ip)
+                built_ip = f'{ip}{str(ip_ext)}'
+                print(built_ip)
+                found_ports = self._socket_connect_ports(built_ip, ports)
 
                 if len(found_ports) > 0:
-                    result[socket.getfqdn(ip)] = (ip, found_ports)
+                    result[socket.getfqdn(built_ip)] = (built_ip, found_ports)
 
             return result
 
-        elif len(self.local_ip_root.split('.')) == 5:
-            print('full ip weeeee')
-            #TODO: IMP adding a whole ip address
-
-            return result
+        elif len(ip_comp) == 4:
+            print('find_by_ip')
+            return self._find_by_ip(ip)
 
 
     def find_by_hostname(self, hostname):
         #TODO: dont hardcore in port 20204, use allowed ports list
         try:
             ip_from_hostname = socket.gethostbyname_ex(hostname)
-            hostname_from_ip = socket.gethostbyaddr(ip_from_hostname[0])
 
             if ip_from_hostname:
+
                 return {hostname_from_ip[0]: (ip_from_hostname[2][0], ['20204'])}
 
         except:
             print('ERR: Hostname not found on network.')
-            return False
-
-
-    def find_by_ip(self, ip):
-        #TODO: dont hardcore in port 20204, use allowed ports list
-        try:
-            #ip_from_hostname = socket.gethostbyname_ex(hostname)
-            hostname_from_ip = socket.gethostbyaddr(ip)
-
-            if hostname_from_ip:
-                return {hostname_from_ip[0]: (ip, ['20204'])}
-
-        except:
-            print('ERR: IP not found on network')
             return False
 
 
