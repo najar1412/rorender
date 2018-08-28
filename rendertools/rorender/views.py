@@ -119,10 +119,11 @@ def scan_ip_range(request):
                 if v:
                     _ip[k] = v
                 else:
-                    _ip[k] = ''
+                    _ip[k] = None
+            print(_ip)
 
             user_ip = f"{_ip['ip_one']}.{_ip['ip_two']}.{_ip['ip_three']}.{_ip['ip_four']}"
-
+            print(user_ip)
             local_machines = LocalNetworkScanner().scan(user_ip, PORTS)
 
             for k, v in local_machines.items():

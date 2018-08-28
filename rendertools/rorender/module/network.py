@@ -160,6 +160,18 @@ class LocalNetworkScanner():
         return result
 
 
+    def _ip_comp(self, ip):
+        result = []
+        ip_comp = ip.split('.')
+        for comp in ip_comp:
+            if comp == '' or comp == None or comp == 'None':
+                pass
+            else:
+                result.append(comp)
+
+        return result
+
+
     def scan(self, ip, ports):
         """scans local machines for accessable hostnames and ips, one ip
         column deep (192.168.30.xxx). approx 1 minute. two ip column deep 
@@ -172,16 +184,16 @@ class LocalNetworkScanner():
         if self.TEST:
             return self.test_data
 
-        # get imp composition
-        ip_comp = ip.split('.')
-        if ip_comp[-1] == '':
-            ip_comp = ip_comp[0:-1]
+        # get ip composition
+        ip_comp = self._ip_comp(ip)
+        print(ip_comp)
 
         if len(ip_comp) == 2:
             print('LLOONNGGG SSEEEAARRCCHHHH')
             for ip_third in range(1, 256):
                 for ip_fourth in range(1, 256):
-                    ip = f'{ip}{str(ip_third)}.{ip_fourth}'
+                    ip = f'{".".join(ip_comp)}.{str(ip_third)}.{str(ip_fourth)}'
+                    print(ip)
                     found_ports = self._socket_connect_ports(ip, ports)
 
                     if len(found_ports) > 0:
@@ -192,7 +204,7 @@ class LocalNetworkScanner():
         elif len(ip_comp) == 3:
             print('scanner')
             for ip_ext in range(1, 256):
-                built_ip = f'{ip}{str(ip_ext)}'
+                built_ip = f'{".".join(ip_comp)}.{str(ip_ext)}'
                 found_ports = self._socket_connect_ports(built_ip, ports)
 
                 if len(found_ports) > 0:
