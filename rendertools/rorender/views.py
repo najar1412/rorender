@@ -111,7 +111,6 @@ def refresh(request):
 def scan_ip_range(request):
     """Endpoint that scans the local network for machines with selected
     ports open"""
-
     if request.method == 'POST':
         form = scan_ip(request.POST)
         if form.is_valid():
@@ -126,6 +125,7 @@ def scan_ip_range(request):
             user_ip = f"{_ip['ip_one']}.{_ip['ip_two']}.{_ip['ip_three']}.{_ip['ip_four']}"
 
             local_machines = LocalNetworkScanner().scan(user_ip, PORTS)
+
             for k, v in local_machines.items():
                 if Machine.objects.filter(ip=v[0]).exists():
                     machine = process_new_ports(ports=v[1], ip=v[0])
@@ -135,15 +135,15 @@ def scan_ip_range(request):
                     new_machine = Machine(name=k, ip=v[0], port=' '.join(v[1]))
                     process_new_ports(ports=v[1], machine=new_machine)
                     new_machine.save()
+           
             
-                return redirect('index')
+            return redirect('index')
 
     return redirect('index')
 
 
 def scan_hostname(request):
     """Endpoint that scans lan for hostname"""
-    #TODO: IMP process_new_ports
     if request.method == 'POST':
         form = find_by_hostname(request.POST)
         if form.is_valid():
@@ -153,11 +153,13 @@ def scan_hostname(request):
                 print(hostname)
                 pass
             else:
-                machine = LocalNetworkScanner().find_by_hostname(hostname)
+                machine = LocalNetworkScanner().find_by_hostname(hostname, ports=PORTS)
                 if machine:
                     machine_hostname = list(machine.keys())[0]
-                    new_machine = Machine(name=machine_hostname, ip=machine[machine_hostname][0], port=' '.join(machine[machine_hostname][1]))
-                    # process_new_ports(ports=machine[machine[0]][1], machine=new_machine)
+                    new_machine = Machine(
+                        name=machine_hostname, ip=machine[machine_hostname][0], 
+                        port=' '.join(machine[machine_hostname][1])
+                    )
                     new_machine.save()
 
                 return redirect('index')

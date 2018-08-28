@@ -3,7 +3,9 @@ Contains source code for scanning local windows(?) networks.
 """
 
 import socket
+from collections import namedtuple
 
+DEVICE_MAPPING = namedtuple('DeviceMapping', 'ip, hostname, ports')
 
 class PortBuilder():
     def __init__(self):
@@ -28,22 +30,33 @@ class PortBuilder():
 
 
 class LocalNetworkScanner():
-    """Tools to help explore a local network"""
-    def __init__(self, local_ip_root=None, TEST=False, TEST_DATA=None):
+    """Explore a local network"""
+    #TODO: imp DEVICE_MAPPING as dto.
+    def __init__(self, TEST=False, TEST_DATA=None):
         """AUG:
-        local_ip_root: str: root ip address of a network to 
-        scan, ex. 'xxx.xxx.xxx.'
+        TEST, ex. 'xxx.xxx.xxx.'
+        TEST_DATA, ex. 'xxx.xxx.xxx.'
         """
-        # TODO: Remove local_ip_root from constructor, should be an aug for the function
-        # that needs it.
-        if not local_ip_root:
-            self.local_ip_root = local_ip_root
-
-        else:
-            self.local_ip_root = local_ip_root
-
         self.TEST = TEST
         self.test_data = TEST_DATA
+
+
+    def _hostname_from_ip(self, ip):
+        """attempts to get hostname of device from ip alone
+        AUG: ip: str: ipaddress, 'xxx.xxx.xxx.xxx'
+        Return: DEVICE_MAPPING, or None"""
+        #TODO: Imple into a realllly slow `deep scan`?
+        #TODO: remove from try/except or catch accordingly
+        #TODO: imp port check
+        #TODO: imp evice_mappinf
+        try:
+            conn_info = socket.gethostbyaddr(ip)
+            device = DEVICE_MAPPING(conn_info[2][0], conn_info[0], [])
+
+            return conn_info
+
+        except:
+            return None
 
 
     def _socket_connect(self, ip, port):
@@ -82,25 +95,49 @@ class LocalNetworkScanner():
 
     def get_local_data(self):
         #TODO: Get all relative local machine info.
-        return {'ip': socket.gethostbyname(socket.gethostname())}
+        #TODO: imp DEVICE_MAPPING obj.
+        #TODO: convertions i.e. result should be up to the user, or under 
+        #`as_dict()`
+        hostname = socket.gethostname()
+        device = DEVICE_MAPPING(
+            socket.gethostbyname(hostname), 
+            hostname, 
+            []
+        )
+        result = {
+            'ip': device[0],
+            'device_name': device[1]
+            }
+
+        return result
+
+    def _to_dict(self, device):
+        _key_values = dict(device._asdict())
+        result = {}
+        result[_key_values['hostname']] = (_key_values['ip'], _key_values['ports'])
+        print('_to_dict()')
+        print(result)
+
+        return result
 
 
-    def _find_by_ip(self, ip):
+    def _find_by_ip(self, device, ports):
         """find device by ip
-        IP: str repr of ip address, 'xxx.xxx.xxx.xxx'
-        return: dict
-        return structure: {'HOSTNAME': ('IP', ['PORTS'])}"""
-        #TODO: dont hardcore in port 20204, use allowed ports list
+        device: DEVICE_MAPPING namedtuple.
+        return: DEVICE_MAPPING namedtuple."""
+        #TODO: refactor heavily
+        #TODO: ip returning the device
         try:
-            print(ip)
-            hostname_from_ip = socket.gethostbyaddr(ip)
+            hostname_from_ip = self._hostname_from_ip(device[0])
+            if hostname_from_ip:                
+                connected_ports = self._socket_connect_ports(device[0], ports)
+                device = device._replace(hostname=hostname_from_ip[0], ports=connected_ports)
 
-            if hostname_from_ip:
-                return {hostname_from_ip[0]: (ip, ['20204'])}
+                return device
 
         except:
             print('ERR: IP not found on network')
-            return False
+            return None
 
 
     def refresh(self, ips, ports):
@@ -156,27 +193,42 @@ class LocalNetworkScanner():
             print('scanner')
             for ip_ext in range(1, 256):
                 built_ip = f'{ip}{str(ip_ext)}'
-                print(built_ip)
                 found_ports = self._socket_connect_ports(built_ip, ports)
 
                 if len(found_ports) > 0:
                     result[socket.getfqdn(built_ip)] = (built_ip, found_ports)
-
             return result
+
 
         elif len(ip_comp) == 4:
             print('find_by_ip')
-            return self._find_by_ip(ip)
+            device = DEVICE_MAPPING(
+                ip, 
+                None, 
+                ports
+            )
+            found_device = self._find_by_ip(device, ports)
+            # naked
+            print(self._to_dict(found_device))
+            return self._to_dict(found_device)
 
 
-    def find_by_hostname(self, hostname):
-        #TODO: dont hardcore in port 20204, use allowed ports list
+    def find_by_hostname(self, hostname, ports=None):
+        """attempts to find a device on the next using hostname only.
+        AUG: hostname: str: hostname of the device.
+        ports:list: post numbers
+        return: dict:"""
+        #TODO: dont catch everything...
         try:
-            ip_from_hostname = socket.gethostbyname_ex(hostname)
+            ip = socket.gethostbyname_ex(hostname)
 
-            if ip_from_hostname:
-
-                return {hostname_from_ip[0]: (ip_from_hostname[2][0], ['20204'])}
+            if ip:
+                if ports:
+                    found_ports = self._socket_connect_ports(ip[2][0], ports)
+                    return {hostname: (ip[2][0], found_ports)}
+                else:
+                    print('portscan didnt fire')
+                    return {hostname: (ip[2][0], [])}
 
         except:
             print('ERR: Hostname not found on network.')
@@ -184,7 +236,7 @@ class LocalNetworkScanner():
 
 
     def __repr__(self):
-        return f'<LocalNetworkScanner: ip_root={self.local_ip_root}>'
+        return f'<LocalNetworkScanner: ip_root:>'
 
 
 def rdc_file_in_memory(HttpResponse, ip):
