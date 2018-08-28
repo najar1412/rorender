@@ -87,20 +87,19 @@ def refresh(request):
     database_machines_found = LocalNetworkScanner().refresh(ips_from_database, PORTS)
 
     # if machine in database found on netowkr
+    ips_from_found_machines = []
     for k, v in database_machines_found.items():
+        print(f'found - {v[0]}')
+        ips_from_found_machines.append(v[0])
         machine = process_new_ports(
             ports=v[1], machine=Machine.objects.filter(ip=v[0]).first()
         )
         machine.save()
-
-    # else machines in database not found in networkscan
-    machines = Machine.objects.all().order_by('name')
-    print(machines)
-    print(database_machines_found)
-    for machine in machines:
-        if machine.name in database_machines_found:
-            pass
-        else:
+    # else not found on network
+    for ip in ips_from_database:
+        if ip not in ips_from_found_machines:
+            print(f'not found - {ip}')
+            machine = Machine.objects.filter(ip=ip).first()
             machine.running = False
             machine.save()
 
@@ -135,8 +134,7 @@ def scan_ip_range(request):
                     new_machine = Machine(name=k, ip=v[0], port=' '.join(v[1]))
                     process_new_ports(ports=v[1], machine=new_machine)
                     new_machine.save()
-           
-            
+
             return redirect('index')
 
     return redirect('index')
