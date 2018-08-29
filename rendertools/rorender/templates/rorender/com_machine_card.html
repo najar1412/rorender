@@ -76,6 +76,13 @@
             {% else %}
             <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/vraylogo_gray.png" %}"/>
             {% endif %}
+
+            {% if machine.backburner_running %}
+            <img style="height:40px;width:40px" src="{% static "rorender/backburner_color.png" %}"/>
+            {% else %}
+            <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/backburner_gray.png" %}"/>
+            {% endif %}
+
             {% if machine.corona_running %}
             <img style="height:40px;width:40px" src="{% static "rorender/coronalogo_color.png" %}"/>
             {% else %}

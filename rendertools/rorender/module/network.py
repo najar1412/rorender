@@ -88,6 +88,7 @@ class LocalNetworkScanner():
 
         for port in ports:
             if self._socket_connect(ip, port):
+                print(f'found on {ip}, {port}')
                 result.append(str(port))
 
         return result
@@ -115,8 +116,6 @@ class LocalNetworkScanner():
         _key_values = dict(device._asdict())
         result = {}
         result[_key_values['hostname']] = (_key_values['ip'], _key_values['ports'])
-        print('_to_dict()')
-        print(result)
 
         return result
 
@@ -140,6 +139,21 @@ class LocalNetworkScanner():
             return None
 
 
+    def _ip_comp(self, ip):
+        """attempts to build ip as list from user input.
+        AUG: ip: str: ip address
+        return: list"""
+        result = []
+        ip_comp = ip.split('.')
+        for comp in ip_comp:
+            if comp == '' or comp == None or comp == 'None':
+                pass
+            else:
+                result.append(comp)
+
+        return result
+
+
     def refresh(self, ips, ports):
         """uses a list of ips to run port checks on.
         ips: list: str repr of ips.
@@ -160,18 +174,6 @@ class LocalNetworkScanner():
         return result
 
 
-    def _ip_comp(self, ip):
-        result = []
-        ip_comp = ip.split('.')
-        for comp in ip_comp:
-            if comp == '' or comp == None or comp == 'None':
-                pass
-            else:
-                result.append(comp)
-
-        return result
-
-
     def scan(self, ip, ports):
         """scans local machines for accessable hostnames and ips, one ip
         column deep (192.168.30.xxx). approx 1 minute. two ip column deep 
@@ -186,7 +188,6 @@ class LocalNetworkScanner():
 
         # get ip composition
         ip_comp = self._ip_comp(ip)
-        print(ip_comp)
 
         if len(ip_comp) == 2:
             print('LLOONNGGG SSEEEAARRCCHHHH')

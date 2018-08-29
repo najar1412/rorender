@@ -53,6 +53,12 @@ def process_new_ports(ports, ip=None, machine=None):
     else:
         machine.corona_running = False
 
+    if '3234' in ports or '3233' in ports:
+        machine.backburner_running = True
+
+    else:
+        machine.backburner_running = False
+
     machine.running = True
 
 

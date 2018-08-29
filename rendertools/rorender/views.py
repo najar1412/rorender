@@ -17,12 +17,14 @@ from .module.database import (
 # global ports to be used while scanning
 corona_ports = [19667, 19666, 19668]
 vray_ports = [20204, 30304]
+backburner_ports = [3234, 3233]
 open_windows_ports = [135, 3389]
 # add them to the PortBuilder for later use
 PORTS = PortBuilder()
 PORTS.add(corona_ports)
 PORTS.add(vray_ports)
 PORTS.add(open_windows_ports)
+PORTS.add(backburner_ports)
 
 FAKE_DATA = {
     '192.168.1.8': ('192.168.1.8', ['3389']), 
@@ -89,7 +91,6 @@ def refresh(request):
     # if machine in database found on netowkr
     ips_from_found_machines = []
     for k, v in database_machines_found.items():
-        print(f'found - {v[0]}')
         ips_from_found_machines.append(v[0])
         machine = process_new_ports(
             ports=v[1], machine=Machine.objects.filter(ip=v[0]).first()
@@ -98,7 +99,6 @@ def refresh(request):
     # else not found on network
     for ip in ips_from_database:
         if ip not in ips_from_found_machines:
-            print(f'not found - {ip}')
             machine = Machine.objects.filter(ip=ip).first()
             machine.running = False
             machine.save()
@@ -149,7 +149,6 @@ def scan_hostname(request):
             hostname = form.cleaned_data['hostname']
 
             if machine_exists(hostname):
-                print(hostname)
                 pass
             else:
                 machine = LocalNetworkScanner().find_by_hostname(hostname, ports=PORTS)

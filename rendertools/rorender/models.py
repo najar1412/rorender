@@ -7,6 +7,7 @@ class Machine(models.Model):
     running = models.BooleanField(default=True)
     rendering = models.BooleanField(default=False)
     vray_running = models.BooleanField(default=False)
+    backburner_running = models.BooleanField(default=False)
     corona_running = models.BooleanField(default=False)
     is_workstation = models.BooleanField(default=False)
     is_manager = models.BooleanField(default=False)
