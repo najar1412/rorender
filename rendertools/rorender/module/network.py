@@ -1,15 +1,38 @@
 """
-Contains source code for scanning local windows(?) networks.
+Contains source code for network scanning of devices.
 """
 
 import socket
 from collections import namedtuple
 
+
+#TODO: where should i imp 'conversion' code? another class that converts
+#DEVICE_MAPPINGS to dicts, json etc?
+
+# helpers (should be moved)
+def rdc_file_in_memory(HttpResponse, ip):
+    """DJANGO ONLY
+    builds in memory rdc connection file.
+    HttpResponse: django HttpResponse object.
+    ip: str: ip address of remote machine.
+    return: django HttpResponse object.
+    """
+    data =  f'auto connect:i:1\nfull address:s:{ip}'
+    response = HttpResponse(data, content_type='application/rdp')
+    response['Content-Disposition'] = f'attachment; filename="{ip}.rdp"'
+
+    return response
+
+
+# global dto
 DEVICE_MAPPING = namedtuple('DeviceMapping', 'ip, hostname, ports')
 
 class PortBuilder():
+    """manages user ports"""
+    #TODO: extend class to allow named groupings of ports.
     def __init__(self):
         self._ports = []
+
 
     def add(self, ports):
         if isinstance(ports, list):
@@ -19,18 +42,21 @@ class PortBuilder():
 
         return self._ports.append(ports)
 
+
     def ports(self):
         return self._ports
 
+
     def __iter__(self):
         return iter(self._ports)
+
 
     def __repr__(self):
         return f'<PortBuilder({len(self._ports)} ports)>'
 
 
 class LocalNetworkScanner():
-    """Explore a local network"""
+    """scans network for connected devices"""
     #TODO: imp DEVICE_MAPPING as dto.
     def __init__(self, TEST=False, TEST_DATA=None):
         """AUG:
@@ -93,24 +119,6 @@ class LocalNetworkScanner():
         return result
 
 
-    def get_local_data(self):
-        #TODO: Get all relative local machine info.
-        #TODO: imp DEVICE_MAPPING obj.
-        #TODO: convertions i.e. result should be up to the user, or under 
-        #`as_dict()`
-        hostname = socket.gethostname()
-        device = DEVICE_MAPPING(
-            socket.gethostbyname(hostname), 
-            hostname, 
-            []
-        )
-        result = {
-            'ip': device[0],
-            'device_name': device[1]
-            }
-
-        return result
-
     def _to_dict(self, device):
         _key_values = dict(device._asdict())
         result = {}
@@ -140,12 +148,49 @@ class LocalNetworkScanner():
             return None
 
 
+    def _ip_comp(self, ip):
+        """breaks a string into list of cleaned ip address elements.
+        AUG: ip: str: ip address
+        return type: list"""
+        #TODO: readable code
+        result = []
+        ip_comp = ip.split('.')
+        for comp in ip_comp:
+            if comp == '' or comp == None or comp == 'None':
+                pass
+            else:
+                result.append(comp)
+
+        return result
+
+
+    def get_local_data(self):
+        #TODO: Get all relative local machine info.
+        #TODO: imp DEVICE_MAPPING obj.
+        #TODO: convertions i.e. result should be up to the user, or under 
+        #`as_dict()`
+        hostname = socket.gethostname()
+        device = DEVICE_MAPPING(
+            socket.gethostbyname(hostname), 
+            hostname, 
+            []
+        )
+        result = {
+            'ip': device[0],
+            'device_name': device[1]
+            }
+
+        return result
+
+
     def refresh(self, ips, ports):
-        """uses a list of ips to run port checks on.
-        ips: list: str repr of ips.
+        """given a list of ips and ports attempts a connection.
+        ips: list: str repr of ip address.
         return type: dict
         return structure: {'HOSTNAME': ('IP', [FOUND_PORTS])}
         return: hostname and ip address"""
+        #TODO: rename.. something like from_data()?
+        #TODO: should return tuple of DEVICE_MAPPING(s)
         result = {}
 
         if self.TEST:
@@ -160,25 +205,13 @@ class LocalNetworkScanner():
         return result
 
 
-    def _ip_comp(self, ip):
-        result = []
-        ip_comp = ip.split('.')
-        for comp in ip_comp:
-            if comp == '' or comp == None or comp == 'None':
-                pass
-            else:
-                result.append(comp)
-
-        return result
-
-
     def scan(self, ip, ports):
-        """scans local machines for accessable hostnames and ips, one ip
-        column deep (192.168.30.xxx). approx 1 minute. two ip column deep 
-        (192.168.xxx.xxx). approx 1 hour 30 minute :p
+        """decision tree for picking how to scan based on user input. 
+        entering '192.168.1.xxx' will scan the missing column, approx 1 minute. 
+        '192.168.xxx.xxx' approx 1 hour 30 minute :p
         return type: dict
         return: hostname and ip address"""
-        #TODO: needs to include user entering full ip address
+        # TODO: imp DEVICE_MAPPING
         result = {}
 
         if self.TEST:
@@ -186,10 +219,9 @@ class LocalNetworkScanner():
 
         # get ip composition
         ip_comp = self._ip_comp(ip)
-        print(ip_comp)
 
         if len(ip_comp) == 2:
-            print('LLOONNGGG SSEEEAARRCCHHHH')
+            print('x2 scan')
             for ip_third in range(1, 256):
                 for ip_fourth in range(1, 256):
                     ip = f'{".".join(ip_comp)}.{str(ip_third)}.{str(ip_fourth)}'
@@ -202,15 +234,15 @@ class LocalNetworkScanner():
             return result
 
         elif len(ip_comp) == 3:
-            print('scanner')
+            print('x1 scan')
             for ip_ext in range(1, 256):
                 built_ip = f'{".".join(ip_comp)}.{str(ip_ext)}'
                 found_ports = self._socket_connect_ports(built_ip, ports)
 
                 if len(found_ports) > 0:
                     result[socket.getfqdn(built_ip)] = (built_ip, found_ports)
-            return result
 
+            return result
 
         elif len(ip_comp) == 4:
             print('find_by_ip')
@@ -220,8 +252,7 @@ class LocalNetworkScanner():
                 ports
             )
             found_device = self._find_by_ip(device, ports)
-            # naked
-            print(self._to_dict(found_device))
+
             return self._to_dict(found_device)
 
 
@@ -231,6 +262,7 @@ class LocalNetworkScanner():
         ports:list: post numbers
         return: dict:"""
         #TODO: dont catch everything...
+        #TODO: imp DEVICE_MAPPING
         try:
             ip = socket.gethostbyname_ex(hostname)
 
@@ -248,17 +280,5 @@ class LocalNetworkScanner():
 
 
     def __repr__(self):
+        #TODO: do better...
         return f'<LocalNetworkScanner: ip_root:>'
-
-
-def rdc_file_in_memory(HttpResponse, ip):
-    """builds in memory rdc connection file.
-    HttpResponse: django HttpResponse object.
-    ip: str: ip address.
-    return: django HttpResponse object.
-    """
-    data =  f'auto connect:i:1\nfull address:s:{ip}'
-    response = HttpResponse(data, content_type='application/rdp')
-    response['Content-Disposition'] = f'attachment; filename="{ip}.rdp"'
-
-    return response
