@@ -9,103 +9,130 @@
 <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Add Machines</h1>
 
 <form action="scan_hostname/" method="post">
-    {% csrf_token %}
-    <div class="form-group">
-      <label for="textarea-hostname">By Hostname:</label>
-     <br>
-      {{form}}
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </div>
-  </form>
+  {% csrf_token %}
+  <div class="form-group">
+    <label for="textarea-hostname">By Hostname:</label>
+    <br>
+    {{form}}
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </div>
+</form>
 
-  <form action="pop/" method="post">
-    {% csrf_token %}
-    <div class="form-group">
-      <label for="textarea-hostname">Scan IP Range:</label>
-     <br>
-      {{form_scan_ip}}
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </div>
-  </form>
+<form action="pop/" method="post">
+  {% csrf_token %}
+  <div class="form-group">
+    <label for="textarea-hostname">Scan IP Range:</label>
+    <br>
+    {{form_scan_ip}}
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </div>
+</form>
 
 <hr>
 
 {% endif %}
 
-<div style="display:flex; flex-direction: column;">
-        <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Manager</h1>
+<div style="display: flex;
+justify-content: space-around;
+width: 800px;
+margin: auto;">
+  <div style="display: flex; flex-direction: column;">
 
-        {% for machine in machines %}
-        {% if machine.is_manager %}
 
-        {% if machine.running %}
+    <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Manager</h1>
 
-        {% include "rorender/com_machine_card.html" %}        
+    {% for machine in machines %}
+    {% if machine.is_manager %}
 
-        {% else %}
+    {% if machine.running %}
 
-        {% include "rorender/com_machine_card_off.html" %}
+    {% include "rorender/com_machine_card.html" %}
 
-        {% endif %}
+    {% else %}
 
-        {% endif %}
-        {% endfor %}
+    {% include "rorender/com_machine_card_off.html" %}
 
-    </div>
+    {% endif %}
 
-<div style="display:flex; flex-wrap: wrap;flex-direction: row; justify-content: space-between;">
+    {% endif %}
+    {% endfor %}
 
-        <div style="display:flex; flex-direction: column;">
-                <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Workstations</h1>
-        
-                {% for machine in machines %}
-                {% if machine.is_workstation and not machine.is_manager and machine.running %}
-        
-                {% include "rorender/com_machine_card.html" %}
-        
-                {% endif %}
-                {% endfor %}
-        
-            </div>
 
-    <div style="display:flex; flex-direction: column;">
-        <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Available</h1>
+    <div style="display:flex; flex-direction: column; min-width: 100%;max-width:100%;">
+      <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Workstations</h1>
 
-        {% for machine in machines %}
-        {% if machine.running and not machine.rendering and not machine.is_workstation and not machine.is_manager %}
+      {% for machine in machines %}
+      {% if machine.is_workstation and not machine.is_manager and machine.running %}
 
-        {% include "rorender/com_machine_card.html" %}
+      {% include "rorender/com_machine_card.html" %}
 
-        {% endif %}
-        {% endfor %}
+      {% endif %}
+      {% endfor %}
 
     </div>
 
-    <div style="display:flex; flex-direction: column;">
-            <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Rendering</h1>
-    
-            {% for machine in machines %}
-            {% if machine.rendering and not machine.is_manager and not machine.is_workstation %}
-    
-            {% include "rorender/com_machine_card.html" %}
-    
-            {% endif %}
-            {% endfor %}
-    
-        </div>
 
-    <div style="display:flex; flex-direction: column;">
-        <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Offline</h1>
 
-        {% for machine in machines %}
-        {% if not machine.running and not machine.is_manager %}
+  </div>
 
-        {% include "rorender/com_machine_card_off.html" %}
+  <div>
 
-        {% endif %}
-        {% endfor %}
+
+
+    <div style="display:flex; flex-direction: column; min-width: 100%;max-width:100%;">
+      <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Available</h1>
+
+      {% for machine in machines %}
+      {% if machine.running and not machine.rendering and not machine.is_workstation and not machine.is_manager %}
+
+      {% include "rorender/com_machine_card.html" %}
+
+      {% endif %}
+      {% endfor %}
 
     </div>
+
+
+
+  </div>
+
+
+
+
+
+
+</div>
+
+<div style="display: flex;
+justify-content: space-around;
+width: 800px;
+margin: auto;">
+
+  <div style="display:flex; flex-direction: column; min-width: 320px;max-width:320px;">
+    <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Rendering</h1>
+
+    {% for machine in machines %}
+    {% if machine.rendering and not machine.is_manager and not machine.is_workstation %}
+
+    {% include "rorender/com_machine_card.html" %}
+
+    {% endif %}
+    {% endfor %}
+
+  </div>
+
+  <div style="display:flex; flex-direction: column; min-width: 320px;max-width:320px;">
+    <h1 class="display-4" style="font-size:30px;padding-bottom:10px;">Offline</h1>
+
+    {% for machine in machines %}
+    {% if not machine.running and not machine.is_manager %}
+
+    {% include "rorender/com_machine_card_off.html" %}
+
+    {% endif %}
+    {% endfor %}
+
+  </div>
 
 </div>
 

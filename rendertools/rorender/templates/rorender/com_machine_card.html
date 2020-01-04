@@ -2,91 +2,93 @@
 
 
 
-<div class="alert alert-success" style="max-width:320px;">
+<div class="alert alert-success" style="min-width: 320px;max-width:320px;">
 
     <div style="display:flex;flex-direction: row;justify-content: space-between">
-    <div style="display:flex;flex-direction: column;">
-        <div>
-                <a href="/rorender/remote_connect/?ip={{machine.ip}}"><span style="font-weight:bold;">{{machine.name}}</span></a> <span style="color:gray;font-style: italic;font-size:11px;">{{machine.ip}}</span>
+        <div style="display:flex;flex-direction: column;">
+            <div>
+                <a href="/rorender/remote_connect/?ip={{machine.ip}}"><span
+                        style="font-weight:bold;">{{machine.name}}</span></a> <span
+                    style="color:gray;font-style: italic;font-size:11px;">{{machine.ip}}</span>
             </div>
 
 
-        <div style="display:flex;flex-direction: row;padding-top:10px;">
-        {% if machine.is_manager and not manage %}
-        <div>
-            [License servers - on/off]
+            <div style="display:flex;flex-direction: row;padding-top:10px;">
+                {% if machine.is_manager and not manage %}
+                <div>
+                    [License servers - on/off]
+                </div>
+
+                {% elif not manage %}
+
+                {% if machine.has_rhino %}
+                <img style="height:40px;width:40px" src="{% static "rorender/rhinologo_color.png" %}" />
+                {% endif %}
+
+                {% if machine.has_autocad %}
+                <img style="height:40px;width:40px" src="{% static "rorender/autocadlogo_color.png" %}" />
+                {% endif %}
+
+
+                {% endif %}
+
+            </div>
+
+            {% if manage %}
+
+            <div style="font-size:12px;">
+                {% if not machine.is_workstation %}
+                <a href="/rorender/make_workstation/?pk={{machine.pk}}">Make Workstation</a>,
+                {% else %}
+                <a href="/rorender/make_workstation/?pk={{machine.pk}}">Remove Workstation</a>,
+                {% endif %}
+                {% if not machine.is_manager %}
+                <a href="/rorender/make_manager/?pk={{machine.pk}}">Make Manager</a>,
+                {% else %}
+                <a href="/rorender/make_manager/?pk={{machine.pk}}">Remove Manager</a>,
+                {% endif %}
+                {% if not machine.has_rhino %}
+                <a href="/rorender/make_rhino/?pk={{machine.pk}}">Add Rhino</a>,
+                {% else %}
+                <a href="/rorender/make_rhino/?pk={{machine.pk}}">Remove Rhino</a>,
+                {% endif %}
+                {% if not machine.has_autocad %}
+                <a href="/rorender/make_autocad/?pk={{machine.pk}}">Add AutoCad</a>,
+                {% else %}
+                <a href="/rorender/make_autocad/?pk={{machine.pk}}">Remove AutoCad</a>,
+                {% endif %}
+
+
+
+                <a href="/rorender/delete_machine_from_db/?pk={{machine.pk}}">Delete</a>,
+
+                <strike><a href="">Edit Name</a></strike>,
+                <strike><a href="">Assign To...</a></strike>
+            </div>
+
+            {% endif %}
+
         </div>
 
-        {% elif not manage %}
+        {% if not machine.is_manager and not manage %}
 
-        {% if machine.has_rhino %}
-            <img style="height:40px;width:40px" src="{% static "rorender/rhinologo_color.png" %}"/>
-        {% endif %}
-
-        {% if machine.has_autocad %}
-            <img style="height:40px;width:40px" src="{% static "rorender/autocadlogo_color.png" %}"/>
-        {% endif %}
-
-
-        {% endif %}
-
-    </div>
-
-        {% if manage %}
-
-        <div style="font-size:12px;">
-            {% if not machine.is_workstation %}
-            <a href="/rorender/make_workstation/?pk={{machine.pk}}">Make Workstation</a>, 
-            {% else %}
-            <a href="/rorender/make_workstation/?pk={{machine.pk}}">Remove Workstation</a>, 
-            {% endif %}
-            {% if not machine.is_manager %}
-            <a href="/rorender/make_manager/?pk={{machine.pk}}">Make Manager</a>, 
-            {% else %}
-            <a href="/rorender/make_manager/?pk={{machine.pk}}">Remove Manager</a>, 
-            {% endif %}
-            {% if not machine.has_rhino %}
-            <a href="/rorender/make_rhino/?pk={{machine.pk}}">Add Rhino</a>,
-            {% else %}
-            <a href="/rorender/make_rhino/?pk={{machine.pk}}">Remove Rhino</a>,
-            {% endif %}
-            {% if not machine.has_autocad %}
-            <a href="/rorender/make_autocad/?pk={{machine.pk}}">Add AutoCad</a>,
-            {% else %}
-            <a href="/rorender/make_autocad/?pk={{machine.pk}}">Remove AutoCad</a>,
-            {% endif %}
-
-
-
-            <a href="/rorender/delete_machine_from_db/?pk={{machine.pk}}">Delete</a>,
-            
-            <strike><a href="">Edit Name</a></strike>,
-            <strike><a href="">Assign To...</a></strike>
-        </div>
-
-        {% endif %}
-
-    </div>
-
-    {% if not machine.is_manager and not manage %}
-
-    <div style="display:flex;flex-direction: row;">
+        <div style="display:flex;flex-direction: row;">
             {% if machine.vray_running %}
-            <img style="height:40px;width:40px" src="{% static "rorender/vraylogo_color.png" %}"/>
+            <img style="height:40px;width:40px" src="{% static "rorender/vraylogo_color.png" %}" />
             {% else %}
-            <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/vraylogo_gray.png" %}"/>
+            <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/vraylogo_gray.png" %}" />
             {% endif %}
 
             {% if machine.backburner_running %}
-            <img style="height:40px;width:40px" src="{% static "rorender/backburner_color.png" %}"/>
+            <img style="height:40px;width:40px" src="{% static "rorender/backburner_color.png" %}" />
             {% else %}
-            <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/backburner_gray.png" %}"/>
+            <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/backburner_gray.png" %}" />
             {% endif %}
 
             {% if machine.corona_running %}
-            <img style="height:40px;width:40px" src="{% static "rorender/coronalogo_color.png" %}"/>
+            <img style="height:40px;width:40px" src="{% static "rorender/coronalogo_color.png" %}" />
             {% else %}
-            <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/coronalogo_gray.png" %}"/>
+            <img style="opacity: 0.2;height:40px;width:40px" src="{% static "rorender/coronalogo_gray.png" %}" />
             {% endif %}
         </div>
 

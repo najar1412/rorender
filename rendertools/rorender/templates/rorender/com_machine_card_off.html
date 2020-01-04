@@ -1,12 +1,13 @@
 {% load static %}
 
-<div class="alert alert-dark" style="max-width:320px;">
+<div class="alert alert-dark" style="min-width:320px;max-width:320px;">
 
     <div style="display:flex;flex-direction: row;justify-content: space-between">
-    <div style="display:flex;flex-direction: column;">
-        <div><span style="font-weight:bold;">{{machine.name}}</span> <span style="color:gray;font-style: italic;font-size:11px">{{machine.ip}}</span></div>
+        <div style="display:flex;flex-direction: column;">
+            <div><span style="font-weight:bold;">{{machine.name}}</span> <span
+                    style="color:gray;font-style: italic;font-size:11px">{{machine.ip}}</span></div>
 
+        </div>
     </div>
-    </div>
-    
+
 </div>
