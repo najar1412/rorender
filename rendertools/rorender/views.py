@@ -1,13 +1,15 @@
 from django.shortcuts import render, redirect, HttpResponse
 
 from .forms import find_by_hostname, scan_ip
-from .models import Machine
+from .models import Machine, User as Users
 from .module.network import LocalNetworkScanner, rdc_file_in_memory, PortBuilder
 from .module.database import (
     process_new_ports, is_workstation, is_manager, has_rhino, has_autocad,
     machine_exists, delete_machine
 )
 
+from django.contrib.auth.models import User
+from django.http import JsonResponse
 
 #TODO: database file management, if db_file.sqite3 exists... etv
 #TODO: refactor FAKE_DATA
@@ -46,10 +48,51 @@ FAKE_DATA = {
     }
 
 
+def validate_username(request):
+    assignment = request.GET.get('assignment', None)
+    user, machine = assignment.split('@')
+
+    userObj = Users.objects.all().filter(name=user)[0]
+    machineObject = Machine.objects.all().filter(name=machine)[0]
+    machineObject.user = userObj
+    machineObject.save()
+
+    print(userObj)
+    print(machineObject)
+
+    res = {}
+    res['username'] = assignment
+
+    """
+    data = {
+        'is_taken': User.objects.filter(username__iexact=username).exists()
+    }
+    if data['is_taken']:
+        data['error_message'] = 'A user with this username already exists.'
+    """
+
+    return JsonResponse(res)
+
+def clear_assignment(request):
+    assignment = request.GET.get('assignment', None)
+    _, machine = assignment.split('@')
+
+    machineObject = Machine.objects.all().filter(name=machine)[0]
+    machineObject.user = None
+
+    machineObject.save()
+
+    res = {}
+    res['username'] = assignment
+
+    return JsonResponse(res)
+
+
 def index(request):
     """Landing page"""
     #TODO: imp: check if new/empty database
     machines = Machine.objects.all().order_by('name')
+    users = Users.objects.all()
 
     local_data = LocalNetworkScanner().get_local_data()
 
@@ -58,7 +101,8 @@ def index(request):
         'manage': False,
         'form': find_by_hostname,
         'form_scan_ip': scan_ip,
-        'local_data': local_data
+        'local_data': local_data,
+        'users': users
         }
 
     return render(request, 'rorender/index.html', context)

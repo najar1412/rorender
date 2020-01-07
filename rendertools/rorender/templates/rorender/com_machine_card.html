@@ -2,7 +2,7 @@
 
 
 
-<div class="alert alert-success" style="min-width: 320px;max-width:320px;">
+<div class="alert alert-success" style="min-width: 470px;max-width:100%;">
 
     <div style="display:flex;flex-direction: row;justify-content: space-between">
         <div style="display:flex;flex-direction: column;">
@@ -13,7 +13,7 @@
             </div>
 
 
-            <div style="display:flex;flex-direction: row;padding-top:10px;">
+            <div style="display:flex;flex-direction: column;padding-top:10px;">
                 {% if machine.is_manager and not manage %}
                 <div>
                     [License servers - on/off]
@@ -21,15 +21,46 @@
 
                 {% elif not manage %}
 
-                {% if machine.has_rhino %}
-                <img style="height:40px;width:40px" src="{% static "rorender/rhinologo_color.png" %}" />
-                {% endif %}
+                <div style="display: flex;">
+                    <div style="align-self: center;">
+                        Assigned to:
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="users-dropdown"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{machine.user.name}}
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="users-dropdown">
 
-                {% if machine.has_autocad %}
-                <img style="height:40px;width:40px" src="{% static "rorender/autocadlogo_color.png" %}" />
-                {% endif %}
+                            {% for user in users %}
+
+                            <a class="dropdown-item"
+                                onclick="assignUser(this, '{{user.name}}', '{{machine.name}}')">{{user.name}}</a>
+
+                            {% endfor %}
 
 
+
+
+
+
+                        </div>
+                    </div>
+                    <button type="button" onclick='clearAssignment(this, "", "{{machine.name}}")'
+                        class="btn btn-light btn-sm">Clear</button>
+
+                </div>
+
+                <div>
+                    {% if machine.has_rhino %}
+                    <img style="height:40px;width:40px" src="{% static "rorender/rhinologo_color.png" %}" />
+                    {% endif %}
+
+                    {% if machine.has_autocad %}
+                    <img style="height:40px;width:40px" src="{% static "rorender/autocadlogo_color.png" %}" />
+                    {% endif %}
+
+                </div>
                 {% endif %}
 
             </div>
@@ -97,3 +128,42 @@
     </div>
 
 </div>
+
+
+{% block javascript %}
+<script>
+    function assignUser(el, user, machine) {
+        const dropDown = el;
+        $.ajax({
+            url: 'http://localhost:8000/rorender/ajax/validate_username/',
+            data: { assignment: user + '@' + machine },
+            dataType: 'json',
+            success: function (data) {
+                dropDown.parentElement.parentElement.children[0].innerHTML = user;
+                // el.parentElement.parentElement.children[0].innerHTML = user
+                if (data.is_taken) {
+                    alert(data.error_message);
+                }
+            }
+        });
+
+    };
+    function clearAssignment(el, user, machine) {
+        const dropDown = el;
+        $.ajax({
+            url: 'http://localhost:8000/rorender/ajax/assign/clear/',
+            data: { assignment: '' + '@' + machine },
+            dataType: 'json',
+            success: function (data) {
+                // dropDown.parentElement.parentElement.children[0].innerHTML = '';
+                console.log(dropDown.parentElement.parentElement.children[0].children[1].children[0].innerHTML = '')
+
+                if (data.is_taken) {
+                    alert(data.error_message);
+                }
+            }
+        });
+
+    };
+</script>
+{% endblock %}
