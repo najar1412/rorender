@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, HttpResponse
 
 from .forms import find_by_hostname, scan_ip
 from .models import Machine, User as Users
-from .module.network import LocalNetworkScanner, rdc_file_in_memory, PortBuilder
+from .module.network import LocalNetworkScanner, PortBuilder
 from .module.database import (
     process_new_ports, is_workstation, is_manager, has_rhino, has_autocad,
     machine_exists, delete_machine
@@ -12,7 +12,6 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 
 #TODO: database file management, if db_file.sqite3 exists... etv
-#TODO: refactor FAKE_DATA
 #TODO: sometimes a machine is found, but cant be find in database, but it is.
 #TODO: handle computers that cant be found by hostname, just ip.
 
@@ -21,6 +20,7 @@ corona_ports = [19667, 19666, 19668]
 vray_ports = [20204, 30304]
 backburner_ports = [3234, 3233]
 open_windows_ports = [135, 3389]
+
 # add them to the PortBuilder for later use
 PORTS = PortBuilder()
 PORTS.add(corona_ports)
@@ -28,27 +28,33 @@ PORTS.add(vray_ports)
 PORTS.add(open_windows_ports)
 PORTS.add(backburner_ports)
 
-FAKE_DATA = {
-    '192.168.1.8': ('192.168.1.8', ['3389']), 
-    'WS-CYRUS': ('192.168.1.10', ['135', '3389']), 
-    'WS-BREWSTER': ('192.168.1.14', ['20204', '135', '3389']), 
-    'WS-DEREK': ('192.168.1.16', ['135', '3389']), 
-    'WS-CHEMI': ('192.168.1.17', ['135', '3389', '19667']), 
-    'WS-CHAZ': ('192.168.1.18', ['30304', '135', '3389']), 
-    'WS-ERNIE': ('192.168.1.19', ['20204', '135', '3389']), 
-    'WS-CESAREA': ('192.168.1.20', ['20204', '135', '3389']), 
-    'WS-BORIS': ('192.168.1.21', ['135']), 
-    '192.168.1.60': ('192.168.1.60', ['30304', '3389']), 
-    'WS-FIONA': ('192.168.1.80', ['30304', '135']), 
-    'WS-DERMIT': ('192.168.1.81', ['30304', '135', '3389']), 
-    'ws-Flubber': ('192.168.1.82', ['135', '3389', '19667']), 
-    'WS-FRIDA': ('192.168.1.83', ['135', '3389']), 
-    'WS-DONOVAN': ('192.168.1.84', ['20204', '19666', '3389']), 
-    'WS-DORIS': ('192.168.1.86', ['135', '3389', '20204'])
-    }
+# helpers
+def rdc_file_in_memory(HttpResponse, ip):
+    """DJANGO ONLY
+    builds in memory rdc connection file.
+    HttpResponse: django HttpResponse object.
+    ip: str: ip address of remote machine.
+    return: django HttpResponse object.
+    """
+    data =  f'auto connect:i:1\nfull address:s:{ip}'
+    response = HttpResponse(data, content_type='application/rdp')
+    response['Content-Disposition'] = f'attachment; filename="{ip}.rdp"'
+
+    return response
 
 
-def validate_username(request):
+def remote_connect(request):
+    if request.method=='GET':
+        ip = request.GET.get('ip')
+
+        return rdc_file_in_memory(HttpResponse, ip)
+
+    else:
+        return redirect('index')
+
+
+# ajax endpoints
+def assign_user(request):
     assignment = request.GET.get('assignment', None)
     user, machine = assignment.split('@')
 
@@ -56,10 +62,7 @@ def validate_username(request):
     machineObject = Machine.objects.all().filter(name=machine)[0]
     machineObject.user = userObj
     machineObject.save()
-
-    print(userObj)
-    print(machineObject)
-
+    
     res = {}
     res['username'] = assignment
 
@@ -72,6 +75,7 @@ def validate_username(request):
     """
 
     return JsonResponse(res)
+
 
 def clear_assignment(request):
     assignment = request.GET.get('assignment', None)
@@ -87,7 +91,7 @@ def clear_assignment(request):
 
     return JsonResponse(res)
 
-
+# views
 def index(request):
     """Landing page"""
     #TODO: imp: check if new/empty database
@@ -125,6 +129,7 @@ def manage(request):
     return render(request, 'rorender/index.html', context)
 
 
+# TODO: Make ajax
 def refresh(request):
     """Endpoint that'll use the database information to update running
     process"""
@@ -182,7 +187,7 @@ def scan_ip_range(request):
 
             return redirect('index')
 
-    return redirect('index')
+    return redirect('manager')
 
 
 def scan_hostname(request):
@@ -206,13 +211,7 @@ def scan_hostname(request):
 
                 return redirect('index')
 
-    return redirect('index')
-
-
-def make_manager(request):
-    print('make manage')
-
-    return redirect('manage')
+    return redirect('manager')
 
 
 def delete_machine_from_db(request):
@@ -257,13 +256,3 @@ def make_autocad(request):
         machine.save()
 
     return redirect('manage')
-
-
-def remote_connect(request):
-    if request.method=='GET':
-        ip = request.GET.get('ip')
-
-        return rdc_file_in_memory(HttpResponse, ip)
-
-    else:
-        return redirect('index')

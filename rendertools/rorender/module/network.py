@@ -9,20 +9,6 @@ from collections import namedtuple
 #TODO: where should i imp 'conversion' code? another class that converts
 #DEVICE_MAPPINGS to dicts, json etc?
 
-# helpers (should be moved)
-def rdc_file_in_memory(HttpResponse, ip):
-    """DJANGO ONLY
-    builds in memory rdc connection file.
-    HttpResponse: django HttpResponse object.
-    ip: str: ip address of remote machine.
-    return: django HttpResponse object.
-    """
-    data =  f'auto connect:i:1\nfull address:s:{ip}'
-    response = HttpResponse(data, content_type='application/rdp')
-    response['Content-Disposition'] = f'attachment; filename="{ip}.rdp"'
-
-    return response
-
 
 # global dto
 DEVICE_MAPPING = namedtuple('DeviceMapping', 'ip, hostname, ports')
