@@ -16,6 +16,6 @@ urlpatterns = [
     path('make_autocad/', views.make_autocad, name='make_autocad'),
     path('remote_connect/', views.remote_connect, name='remote_connect'),
 
-    url(r'^ajax/validate_username/$', views.validate_username, name='validate_username'),
+    url(r'^ajax/assign_user/$', views.assign_user, name='assign_user'),
     url(r'^ajax/assign/clear/$', views.clear_assignment, name='clear_assignment'),
 ]
