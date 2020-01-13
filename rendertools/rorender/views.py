@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, HttpResponse
 
 from .forms import find_by_hostname, scan_ip
 from .models import Machine, User as Users
+from .module import backburner
 from .module.network import LocalNetworkScanner, PortBuilder
 from .module.database import (
     process_new_ports, is_workstation, is_manager, has_rhino, has_autocad,
@@ -10,6 +11,7 @@ from .module.database import (
 
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+
 
 #TODO: database file management, if db_file.sqite3 exists... etv
 #TODO: sometimes a machine is found, but cant be find in database, but it is.
@@ -96,9 +98,21 @@ def index(request):
     """Landing page"""
     #TODO: imp: check if new/empty database
     machines = Machine.objects.all().order_by('name')
+    job_status = backburner.parse_backburner()
+
+    for machine in machines:
+        for job in job_status:
+            if machine.name in job_status[job]:
+                machine.rendering = True
+                machine.save()
+            else:
+                machine.rendering = False
+                machine.save()
+
     users = Users.objects.all()
 
     local_data = LocalNetworkScanner().get_local_data()
+    
 
     context = {
         'machines': machines,
@@ -106,7 +120,8 @@ def index(request):
         'form': find_by_hostname,
         'form_scan_ip': scan_ip,
         'local_data': local_data,
-        'users': users
+        'users': users,
+        # 'job_status': job_status
         }
 
     return render(request, 'rorender/index.html', context)
@@ -136,6 +151,7 @@ def refresh(request):
 
     ips_from_database = [x.ip for x in Machine.objects.all()]
     database_machines_found = LocalNetworkScanner().refresh(ips_from_database, PORTS)
+    job_status = backburner.parse_backburner()
 
     # if machine in database found on netowkr
     ips_from_found_machines = []

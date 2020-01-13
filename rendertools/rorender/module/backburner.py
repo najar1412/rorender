@@ -12,9 +12,11 @@ import datetime
 # parse for needed information (render started, render finished/errored)
 # update data base
 
-log_root = os.path.join(os.getcwd(), 'backburner.log')
+
+
+
 machine_status = dict()
-job_status = dict()
+JOB_STATUS = dict()
 
 
 def check_log_line(line):
@@ -33,19 +35,19 @@ def check_log_line(line):
                     job = message.split("'")[1]
                     machine = message.split(' ')[-1]
                     
-                    if job in job_status:
-                        job_status[job].append(machine)
+                    if job in JOB_STATUS:
+                        JOB_STATUS[job].append(machine)
                     else:
-                        job_status.setdefault(job, [])
-                        job_status[job].append(machine)
+                        JOB_STATUS.setdefault(job, [])
+                        JOB_STATUS[job].append(machine)
                     
                     return (machine, 'rendering', job)
 
                 # if jobs finished
                 if message.endswith('Complete'):
                     job = message.split("'")[1]
-                    if job in job_status:
-                        del job_status[job]
+                    if job in JOB_STATUS:
+                        del JOB_STATUS[job]
 
             if date_time_obj and debug_level == 'ERR':
                 # job was cancelled? failed?
@@ -53,9 +55,9 @@ def check_log_line(line):
                     machine = message.split(' ')[-1]
                     job = message.split(' ')[1]
 
-                    if job in job_status:
-                        if machine in job_status[job]:
-                            job_status[job].remove(machine)
+                    if job in JOB_STATUS:
+                        if machine in JOB_STATUS[job]:
+                            JOB_STATUS[job].remove(machine)
 
 
             if date_time_obj and debug_level == 'DBG':
@@ -71,15 +73,13 @@ def check_log_line(line):
         return False
 
 
-with open(log_root, encoding="utf-16") as fp:
-    line = fp.readline()
-    while line:
-        result = check_log_line(line)
+def parse_backburner():
+    log_root = os.path.join(os.path.expanduser('~'), 'AppData', 'Local', 'backburner')
 
-        if result:
-            machine_status[result[0]] = [result[1], result[2]]
-
+    with open(log_root, encoding="utf-16") as fp:
         line = fp.readline()
+        while line:
+            result = check_log_line(line)
+            line = fp.readline()
 
-
-print(job_status)
+        return JOB_STATUS
