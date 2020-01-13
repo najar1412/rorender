@@ -7,9 +7,10 @@
     <div style="display:flex;flex-direction: row;justify-content: space-between">
         <div style="display:flex;flex-direction: column;">
             <div>
-                <a href="/rorender/remote_connect/?ip={{machine.ip}}"><span
-                        style="font-weight:bold;">{{machine.name}}</span></a> <span
-                    style="color:gray;font-style: italic;font-size:11px;">{{machine.ip}}</span>
+                <a href="/rorender/remote_connect/?ip={{machine.ip}}">
+                    <span style="font-weight:bold;">{{machine.name}}</span></a> 
+                    <span style="color:gray;font-style: italic;font-size:11px;">{{machine.ip}}</span>
+                    <img onclick="refreshMachine(['{{machine.name}}', '{{machine.ip}}', this])" style="height:20px;width:20px" src="{% static 'rorender/refresh.svg' %}" />
             </div>
 
 
@@ -99,8 +100,7 @@
 
                 <a href="/rorender/delete_machine_from_db/?pk={{machine.pk}}">Delete</a>,
 
-                <strike><a href="">Edit Name</a></strike>,
-                <strike><a href="">Assign To...</a></strike>
+                <strike><a href="">Edit Name</a></strike>
             </div>
 
             {% endif %}
@@ -109,7 +109,7 @@
 
         {% if not machine.is_manager and not manage %}
 
-        <div style="display:flex;flex-direction: row;">
+        <div style="display:flex;flex-direction: row;" id="process-is-running">
             {% if machine.vray_running %}
             <img style="height:40px;width:40px" src="{% static "rorender/vraylogo_color.png" %}" />
             {% else %}
@@ -136,40 +136,3 @@
 </div>
 
 
-{% block javascript %}
-<script>
-    function assignUser(el, user, machine) {
-        const dropDown = el;
-        $.ajax({
-            url: 'http://localhost:8000/rorender/ajax/assign_user/',
-            data: { assignment: user + '@' + machine },
-            dataType: 'json',
-            success: function (data) {
-                dropDown.parentElement.parentElement.children[0].innerHTML = user;
-                // el.parentElement.parentElement.children[0].innerHTML = user
-                if (data.is_taken) {
-                    alert(data.error_message);
-                }
-            }
-        });
-
-    };
-    function clearAssignment(el, user, machine) {
-        const dropDown = el;
-        $.ajax({
-            url: 'http://localhost:8000/rorender/ajax/assign/clear/',
-            data: { assignment: '' + '@' + machine },
-            dataType: 'json',
-            success: function (data) {
-                // dropDown.parentElement.parentElement.children[0].innerHTML = '';
-                console.log(dropDown.parentElement.parentElement.children[0].children[1].children[0].innerHTML = '')
-
-                if (data.is_taken) {
-                    alert(data.error_message);
-                }
-            }
-        });
-
-    };
-</script>
-{% endblock %}

@@ -22,6 +22,109 @@
     {% block content %}{% endblock %}
   </div>
 
+
+
+
+
+
+  {% block javascript %}
+  <script>
+      function assignUser(el, user, machine) {
+          const dropDown = el;
+          $.ajax({
+              url: 'http://localhost:8000/rorender/ajax/assign_user/',
+              data: { assignment: user + '@' + machine },
+              dataType: 'json',
+              success: function (data) {
+                  dropDown.parentElement.parentElement.children[0].innerHTML = user;
+                  if (data.is_taken) {
+                      alert(data.error_message);
+                  }
+              }
+          });
+      };
+      function clearAssignment(el, user, machine) {
+          const dropDown = el;
+          $.ajax({
+              url: 'http://localhost:8000/rorender/ajax/assign/clear/',
+              data: { assignment: '' + '@' + machine },
+              dataType: 'json',
+              success: function (data) {
+                  // dropDown.parentElement.parentElement.children[0].innerHTML = '';
+                  console.log(dropDown.parentElement.parentElement.children[0].children[1].children[0].innerHTML = '')
+  
+                  if (data.is_taken) {
+                      alert(data.error_message);
+                  }
+              }
+          });
+  
+      };
+  </script>
+
+
+
+<script>
+  function refreshMachine(data) {
+    let machineName = data[0]
+    let machineIp = data[1]
+    let el = data[2]
+    let icons = el.parentElement.parentElement.parentElement.children[1]
+    let card = el.parentElement.parentElement.parentElement.parentElement
+
+    card.classList.remove('alert-success')
+    card.classList.add('alert-warning')
+    card.style.opacity = 0.5
+
+    $.ajax({
+              url: 'http://localhost:8000/rorender/ajax/refresh_machine/',
+              data: { machine: machineName + '@' + machineIp },
+              dataType: 'json',
+              success: function (data) {
+
+                const processStatus = Object.values(data)
+
+                for (var i=0;i<icons.children.length;i++) {
+                  let img_loc = icons.children[i].src.split('/')
+                  let fileName = img_loc.pop()
+
+                  let loc = img_loc.join('/')
+                  let splitFilename = fileName.split('_')
+                  splitFilename.pop()
+
+                  if (processStatus[i]) {
+                    icons.children[i].src = loc + '/' + splitFilename + '_color.png'
+                    icons.children[i].style.opacity = 1
+
+                  } else {
+                    icons.children[i].src = loc + '/' + splitFilename + '_gray.png'
+                    icons.children[i].style.opacity = 0.2
+                    
+                  }
+
+                }
+
+                card.classList.remove('alert-warning')
+                card.classList.add('alert-success')
+                card.style.opacity = 1
+              }
+          });
+  }
+
+
+
+  </script>
+
+
+  {% endblock %}
+
+
+
+
+
+
+
+
   <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
     integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
@@ -29,6 +132,7 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
     integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
     crossorigin="anonymous"></script>
+
 </body>
 
 </html>

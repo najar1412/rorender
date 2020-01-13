@@ -26,6 +26,7 @@ def delete_machine(pk):
     except:
         return False
 
+
 def process_new_ports(ports, ip=None, machine=None):
     """Loops over a list of ports and updates django object accordingly.
     ports: list: str repr of ports.

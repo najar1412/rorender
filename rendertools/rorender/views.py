@@ -93,21 +93,51 @@ def clear_assignment(request):
 
     return JsonResponse(res)
 
+
+
+
+def refresh_machine(request):
+    machine_data = request.GET.get('machine', None)
+    machine, ip = machine_data.split('@')
+
+    database_machines_found = LocalNetworkScanner().refresh([ip], PORTS)
+
+    ips_from_found_machines = []
+    for k, v in database_machines_found.items():
+        machine = process_new_ports(
+            ports=v[1], machine=Machine.objects.filter(ip=v[0]).first()
+        )
+
+        machine.save()
+
+
+
+    whats_running = {
+        'vray_running': machine.vray_running,
+        'backburner_running': machine.backburner_running,
+        'corona_running': machine.corona_running,
+    }
+    res = whats_running
+
+    return JsonResponse(res)
+
+
+
 # views
 def index(request):
     """Landing page"""
     #TODO: imp: check if new/empty database
     machines = Machine.objects.all().order_by('name')
-    job_status = backburner.parse_backburner()
+    #job_status = backburner.parse_backburner()
 
-    for machine in machines:
-        for job in job_status:
-            if machine.name in job_status[job]:
-                machine.rendering = True
-                machine.save()
-            else:
-                machine.rendering = False
-                machine.save()
+    # for machine in machines:
+    #     for job in job_status:
+    #         if machine.name in job_status[job]:
+    #             machine.rendering = True
+    #             machine.save()
+    #         else:
+    #             machine.rendering = False
+    #             machine.save()
 
     users = Users.objects.all()
 
@@ -119,7 +149,7 @@ def index(request):
         'manage': False,
         'form': find_by_hostname,
         'form_scan_ip': scan_ip,
-        'local_data': local_data,
+        # 'local_data': local_data,
         'users': users,
         # 'job_status': job_status
         }
@@ -144,6 +174,11 @@ def manage(request):
     return render(request, 'rorender/index.html', context)
 
 
+
+
+
+
+
 # TODO: Make ajax
 def refresh(request):
     """Endpoint that'll use the database information to update running
@@ -151,7 +186,6 @@ def refresh(request):
 
     ips_from_database = [x.ip for x in Machine.objects.all()]
     database_machines_found = LocalNetworkScanner().refresh(ips_from_database, PORTS)
-    job_status = backburner.parse_backburner()
 
     # if machine in database found on netowkr
     ips_from_found_machines = []

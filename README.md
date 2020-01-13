@@ -16,10 +16,16 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-Python2, Nginx, Postgres/SQLite3, Nodejs
+Python3, Nginx, Postgres/SQLite3, Nodejs
 
 ```
 Installing the above
+```
+
+Extending Autodesk Backburner logs files
+
+```
+General settings > DGX?
 ```
 
 ### Installing

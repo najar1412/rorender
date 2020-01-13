@@ -13,8 +13,6 @@ import datetime
 # update data base
 
 
-
-
 machine_status = dict()
 JOB_STATUS = dict()
 
@@ -74,12 +72,30 @@ def check_log_line(line):
 
 
 def parse_backburner():
-    log_root = os.path.join(os.path.expanduser('~'), 'AppData', 'Local', 'backburner')
+    # TODO: this is wank, fix.
+    try:
+        log_root = os.path.join(os.path.expanduser('~'), 'AppData', 'Local', 'backburner', 'backburner.log')
 
-    with open(log_root, encoding="utf-16") as fp:
-        line = fp.readline()
+        with open(log_root, encoding="utf-16") as fp:
+            line = fp.readline()
         while line:
             result = check_log_line(line)
             line = fp.readline()
 
         return JOB_STATUS
+
+
+    except Exception as e:
+        print('USING DEV BACKBURNER LOGS')
+        log_root = os.path.join(os.getcwd(), 'rorender', 'module', 'backburner.log')
+        print(e)
+
+        with open(log_root, encoding="utf-16") as fp:
+            line = fp.readline()
+        while line:
+            result = check_log_line(line)
+            line = fp.readline()
+
+        return JOB_STATUS
+
+    

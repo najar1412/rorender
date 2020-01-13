@@ -18,4 +18,5 @@ urlpatterns = [
 
     url(r'^ajax/assign_user/$', views.assign_user, name='assign_user'),
     url(r'^ajax/assign/clear/$', views.clear_assignment, name='clear_assignment'),
+    url(r'^ajax/refresh_machine/$', views.refresh_machine, name='refresh_machine'),
 ]
