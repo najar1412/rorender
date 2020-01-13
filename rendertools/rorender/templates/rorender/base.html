@@ -13,6 +13,9 @@
   <!-- Bootstrap -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
     integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+
+<link rel="stylesheet" type="text/css" href="{% static 'rorender/style.css' %}">
 </head>
 
 <body>
@@ -72,6 +75,7 @@
     let icons = el.parentElement.parentElement.parentElement.children[1]
     let card = el.parentElement.parentElement.parentElement.parentElement
 
+    el.classList.add('spin-refresh')
     card.classList.remove('alert-success')
     card.classList.add('alert-warning')
     card.style.opacity = 0.5
@@ -104,6 +108,7 @@
 
                 }
 
+                el.classList.remove('spin-refresh')
                 card.classList.remove('alert-warning')
                 card.classList.add('alert-success')
                 card.style.opacity = 1

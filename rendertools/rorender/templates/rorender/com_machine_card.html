@@ -7,10 +7,12 @@
     <div style="display:flex;flex-direction: row;justify-content: space-between">
         <div style="display:flex;flex-direction: column;">
             <div>
+                <img onclick="refreshMachine(['{{machine.name}}', '{{machine.ip}}', this])" style="cursor: pointer; height:15px;width:15px" src="{% static 'rorender/refresh.svg' %}" />
+
                 <a href="/rorender/remote_connect/?ip={{machine.ip}}">
+
                     <span style="font-weight:bold;">{{machine.name}}</span></a> 
                     <span style="color:gray;font-style: italic;font-size:11px;">{{machine.ip}}</span>
-                    <img onclick="refreshMachine(['{{machine.name}}', '{{machine.ip}}', this])" style="height:20px;width:20px" src="{% static 'rorender/refresh.svg' %}" />
             </div>
 
 

@@ -12,7 +12,7 @@ from .module.database import (
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 
-
+#TODO: THIS IS WANK.
 #TODO: database file management, if db_file.sqite3 exists... etv
 #TODO: sometimes a machine is found, but cant be find in database, but it is.
 #TODO: handle computers that cant be found by hostname, just ip.
